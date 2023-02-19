@@ -96,6 +96,7 @@ REST_FRAMEWORK = {
     ),
     'PAGE_SIZE': 100,
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
     'DATE_FORMAT': '%Y-%m-%d',
 }
@@ -122,6 +123,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'X-TzName',
 ]
+
+AUTH_USER_MODEL = 'core.User'
 
 WSGI_APPLICATION = 'receipt.wsgi.application'
 
@@ -186,3 +189,4 @@ SPECTACULAR_SETTINGS = {
 }
 
 SWAGGER_URL = env.str('SWAGGER_URL', None)
+ADMIN_URL = env.str('ADMIN_URL', 'admin')
