@@ -31,6 +31,9 @@ class Ingredient(NameABC):
 class CulinaryCategory(NameABC):
     description = models.CharField(max_length=255, blank=True, default='')
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name = 'Категорія в кулінарії'
         verbose_name_plural = 'Категорії в кулінарії'
@@ -56,6 +59,10 @@ class Device(NameABC):
 
 class CookingType(NameABC):
     """Cooking preparing principe, ex.:bake."""
+
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name = 'Принципи проготування'
         verbose_name_plural = 'Принцип проготування'
@@ -65,3 +72,6 @@ class CookingType(NameABC):
 class Category(NameABC):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='child_categories')
     description = models.CharField(max_length=255, blank=True, default='')
+
+    def __str__(self):
+        return self.name
