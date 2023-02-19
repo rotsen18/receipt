@@ -51,7 +51,8 @@ INSTALLED_APPS = [
 
     'accounts',
     'core',
-    'culinary'
+    'culinary',
+    'directory',
 
 ]
 
