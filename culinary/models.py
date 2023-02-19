@@ -9,7 +9,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     main_cooking_principe = models.ForeignKey('directory.CookingType', on_delete=models.CASCADE, null=True)
     procedure = models.TextField(blank=True, default='')
     devices = models.ManyToManyField('directory.Device')
-    category = models.ForeignKey('directory.Category', on_delete=models.PROTECT, null=True, blank=True)
+    category = models.ForeignKey('directory.CulinaryCategory', on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return self.name
