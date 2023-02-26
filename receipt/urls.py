@@ -21,7 +21,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularJSONAPIView, Sp
 
 urlpatterns = [
     path(f'api/v1/{settings.ADMIN_URL}', admin.site.urls),
-] + + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.SWAGGER_URL:
     urlpatterns += [
