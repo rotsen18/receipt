@@ -30,7 +30,10 @@ SECRET_KEY = env.str('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', False)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -51,12 +54,14 @@ INSTALLED_APPS = [
 
     'accounts',
     'core',
-    'culinary'
+    'culinary',
+    'directory',
 
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -96,6 +101,7 @@ REST_FRAMEWORK = {
     ),
     'PAGE_SIZE': 100,
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
     'DATE_FORMAT': '%Y-%m-%d',
 }
@@ -122,6 +128,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'X-TzName',
 ]
+
+AUTH_USER_MODEL = 'core.User'
 
 WSGI_APPLICATION = 'receipt.wsgi.application'
 
@@ -186,3 +194,4 @@ SPECTACULAR_SETTINGS = {
 }
 
 SWAGGER_URL = env.str('SWAGGER_URL', None)
+ADMIN_URL = env.str('ADMIN_URL', 'admin')
