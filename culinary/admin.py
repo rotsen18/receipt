@@ -17,3 +17,8 @@ class CommentsInline(admin.TabularInline):
 @admin.register(Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
     inlines = [ComponentsInline, CommentsInline]
+
+
+@admin.register(ReceiptComponent)
+class ReceiptComponent(admin.ModelAdmin):
+    pass
