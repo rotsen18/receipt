@@ -16,11 +16,15 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularJSONAPIView, SpectacularSwaggerView
+from rest_framework.authtoken import views
 
 urlpatterns = [
     path(f'api/v1/{settings.ADMIN_URL}', admin.site.urls),
+    path('api/v1/token-auth/', views.obtain_auth_token),
+    path('api/v1/culinary/', include('culinary.api.v1.urls')),
+    path('api/v1/directory/', include('directory.api.v1.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.SWAGGER_URL:

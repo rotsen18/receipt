@@ -10,6 +10,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     procedure = models.TextField(blank=True, default='')
     devices = models.ManyToManyField('directory.Device')
     category = models.ForeignKey('directory.CulinaryCategory', on_delete=models.PROTECT, null=True, blank=True)
+    source_link = models.URLField(null=True)
 
     def __str__(self):
         return self.name
@@ -39,7 +40,7 @@ class ReceiptComponent(models.Model):
     amount = models.FloatField()
 
     def __str__(self):
-        return f'{self.ingredient} - {self.amount}{self.measurement_unit}'
+        return f'{self.ingredient} - {self.amount} {self.measurement_unit}'
 
     @property
     def measurement_unit(self):
@@ -55,35 +56,24 @@ class ReceiptComponent(models.Model):
         ordering = ['receipt']
 
 
-class ReceiptVote(DateTimesABC, AuthorABC):
+class ReceiptComment(DateTimesABC, AuthorABC):
     class RateChoices(models.IntegerChoices):
         VERY_BAD = (1, 'very bad')
         BAD = (2, 'bad')
         NORMAL = (3, 'normal')
         GOOD = (4, 'good')
-        perfect = (5, 'perfect')
+        PERFECT = (5, 'perfect')
 
-    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='votes')
-    rate = models.IntegerField(choices=RateChoices.choices)
+    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='comments')
+    rate = models.IntegerField(choices=RateChoices.choices, default=RateChoices.PERFECT)
+    text = models.CharField(max_length=300, default='')
 
     def __str__(self):
-        return f'{self.receipt}: {self.rate}'
+        max_comment_length = 15
+        text = f'{self.text[:max_comment_length]}...' if len(self.text) >= max_comment_length else self.text
+        return f'{self.receipt}:{self.rate} {text}'
 
     class Meta:
         verbose_name = 'Оцінка рецепту'
         verbose_name_plural = 'Оцінки рецепту'
-        ordering = ['-created_at']
-
-
-class ReceiptComment(AuthorABC, DateTimesABC):
-    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE)
-    text = models.CharField(max_length=300)
-
-    def __str__(self):
-        max_comment_length = 15
-        return f'{self.text[:max_comment_length]}...' if len(self.text) >= max_comment_length else self.text
-
-    class Meta:
-        verbose_name = 'Комент'
-        verbose_name_plural = 'Коменти'
         ordering = ['-created_at']
