@@ -52,5 +52,5 @@ class ReceiptDetailSerializer(serializers.ModelSerializer):
         model = Receipt
         fields = (
             'id', 'name', 'created_at', 'modified_at', 'author', 'description', 'main_cooking_principe', 'procedure',
-            'devices', 'category', 'raking', 'comments', 'components'
+            'devices', 'category', 'raking', 'comments', 'components', 'source_link'
         )

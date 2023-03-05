@@ -10,6 +10,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     procedure = models.TextField(blank=True, default='')
     devices = models.ManyToManyField('directory.Device')
     category = models.ForeignKey('directory.CulinaryCategory', on_delete=models.PROTECT, null=True, blank=True)
+    source_link = models.URLField(null=True)
 
     def __str__(self):
         return self.name
