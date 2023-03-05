@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/v1/token-auth/', views.obtain_auth_token),
     path('api/v1/culinary/', include('culinary.api.v1.urls')),
     path('api/v1/directory/', include('directory.api.v1.urls')),
+    path('api/v1/telegram_bot/', include('telegram_bot.api.v1.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.SWAGGER_URL:
