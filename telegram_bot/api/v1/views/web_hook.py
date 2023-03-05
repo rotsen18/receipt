@@ -1,13 +1,9 @@
-import logging
-
 from telebot.types import Update
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from telegram_bot.telebot_core import bot
-
-logger = logging.getLogger(__name__)
+from telegram_bot.dispatcher import dispatcher
 
 
 # 'https://api.telegram.org/bot{token}?url={domain}/api/v1/telegram_bot/webhook'
@@ -18,7 +14,6 @@ class WebHookView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
-        logger.info(data)
         update = Update.de_json(data)
-        bot.process_new_updates(updates=[update])
+        dispatcher.process_update(update)
         return Response('ok')
