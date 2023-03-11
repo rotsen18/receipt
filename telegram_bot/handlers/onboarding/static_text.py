@@ -1,7 +1,9 @@
 start_created = "Sup, {first_name}!"
 start_not_created = "Welcome back, {first_name}!"
-unlock_secret_room = "Congratulations! You've opened a secret room👁‍🗨. There is some information for you:\n" \
-           "<b>Users</b>: {user_count}\n" \
-           "<b>24h active</b>: {active_24}"
-github_button_text = "GitHub"
+
+detail_receipt_text = "Подивитися рецепт"
+list_receipt_text = "Всі рецепти"
 secret_level_button_text = "Secret level🗝"
+
+receipt_short_text = '<b>{name}</b> {raking}⭐\nпринцип приготування: {main_cooking_principe}\nкатегорія: {category}\n\n{description}'
+receipt_detail_title = '<b>{name}</b> {raking}⭐\n {author} {created_at}'

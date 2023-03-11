@@ -16,6 +16,7 @@ class ReceiptListSerializer(serializers.ModelSerializer):
     link = serializers.SerializerMethodField()
     main_cooking_principe = serializers.CharField(source='main_cooking_principe.name', read_only=True)
     category = serializers.CharField(source='category.name', read_only=True)
+    raking = serializers.ReadOnlyField()
 
     def get_link(self, obj):
         request = self.context.get('request')
@@ -24,7 +25,7 @@ class ReceiptListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Receipt
-        fields = ('id', 'name', 'description', 'main_cooking_principe',  'category', 'link')
+        fields = ('id', 'name', 'description', 'main_cooking_principe',  'category', 'link', 'raking')
 
 
 class ReceiptComponentSerializer(serializers.ModelSerializer):
@@ -47,6 +48,8 @@ class ReceiptDetailSerializer(serializers.ModelSerializer):
     comments = ReceiptCommentSerializer(many=True)
     category = serializers.CharField(source='category.name', read_only=True)
     devices = serializers.SlugRelatedField(many=True, slug_field='name', read_only=True)
+    main_cooking_principe = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    author = serializers.SlugRelatedField(slug_field='first_name', read_only=True, default='')
 
     class Meta:
         model = Receipt
