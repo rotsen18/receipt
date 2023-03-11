@@ -18,4 +18,4 @@ def make_keyboard_for_receipt(receipt_id: int) -> InlineKeyboardMarkup:
 def make_menu_keyboard():
     button1 = KeyboardButton(text=list_receipt_text)
     buttons = [[button1]]
-    return ReplyKeyboardMarkup(buttons)
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
