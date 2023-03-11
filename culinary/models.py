@@ -25,7 +25,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
 
     @property
     def raking(self):
-        return round(self.votes.aggregate(avg=Avg('rate')), 1)
+        return round(self.comments.aggregate(avg=Avg('rate')).get('avg'), 1)
 
 
 class ReceiptComponent(models.Model):

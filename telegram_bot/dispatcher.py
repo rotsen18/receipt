@@ -9,15 +9,15 @@ from telegram.ext import (
 
 from receipt.settings import DEBUG
 from telegram_bot.handlers.onboarding import handlers as onboarding_handlers
+from telegram_bot.handlers.onboarding.static_text import list_receipt_text
 from telegram_bot.main import bot
 
 
 def setup_dispatcher(dp):
-    """
-    Adding handlers for events from Telegram
-    """
-    # onboarding
     dp.add_handler(CommandHandler("start", onboarding_handlers.command_start))
+    dp.add_handler(CommandHandler("receipts", onboarding_handlers.receipts))
+    dp.add_handler(MessageHandler(Filters.text(list_receipt_text), onboarding_handlers.receipts))
+    dp.add_handler(CallbackQueryHandler(onboarding_handlers.detail_receipt, pattern=f"receipt_id=\d+"))
 
     return dp
 
