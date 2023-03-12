@@ -1,10 +1,11 @@
 """
     Telegram event handlers
 """
+from telegram import Update
 from telegram.ext import (
     Dispatcher, Filters,
     CommandHandler, MessageHandler,
-    CallbackQueryHandler,
+    CallbackQueryHandler, ContextTypes, CallbackContext, Updater,
 )
 
 from receipt.settings import DEBUG
@@ -12,9 +13,11 @@ from telegram_bot.handlers.onboarding import handlers as onboarding_handlers
 from telegram_bot.handlers.receipts import handlers as receipts_handlers
 from telegram_bot.handlers.receipts import static_text as receipt_static_text
 from telegram_bot.main import bot
+from telegram_bot.models import TelegramUser
 
 
 def setup_dispatcher(dp):
+    # dp.add_handler(UserMiddleware())
     dp.add_handler(CommandHandler("start", onboarding_handlers.command_start))
     dp.add_handler(CommandHandler("receipts", receipts_handlers.receipts))
 
@@ -36,8 +39,39 @@ def setup_dispatcher(dp):
             pattern=rf'{receipt_static_text.comment_create_button_data}\d+'
         )
     )
+
     return dp
 
 
+class CustomCallbackContext(CallbackContext):
+    """Custom class for context."""
+
+    def __init__(self, dispatcher: Dispatcher):
+        super().__init__(dispatcher=dispatcher)
+        self.user = None
+
+    @staticmethod
+    def get_user(update: Update):
+        user_id = update.effective_user.id
+        user_data = {
+            'first_name': update.message.from_user.first_name,
+            'last_name': update.message.from_user.last_name,
+            'username': update.message.from_user.username,
+            'telegram_id': user_id,
+        }
+        user, _ = TelegramUser.objects.get_or_create(telegram_id=user_id, defaults=user_data)
+        return user
+
+    @classmethod
+    def from_update(cls, update: object, dispatcher: Dispatcher) -> CallbackContext:
+        context = super().from_update(update, dispatcher)
+        if isinstance(update, Update) and update.effective_message:
+            context.user = cls.get_user(update)
+            return context
+
+
 n_workers = 0 if DEBUG else 4
-dispatcher = setup_dispatcher(Dispatcher(bot, update_queue=None, workers=n_workers, use_context=True))
+context_types = ContextTypes(context=CustomCallbackContext)
+updater = Updater(bot=bot, context_types=context_types, workers=n_workers, use_context=True)
+
+bot_dispatcher = setup_dispatcher(updater.dispatcher)

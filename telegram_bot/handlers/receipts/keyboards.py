@@ -28,9 +28,10 @@ def make_keyboard_for_detail_receipt(receipt_id: int, comments_amount: int = 0) 
         callback_data=f'{static_text.receipt_edit_button_data}{receipt_id}'
     )
     buttons = [[
-        add_comment_button, edit_button
+        add_comment_button
     ]]
     if comments_amount:
         buttons[0].append(comments_button)
+
 
     return InlineKeyboardMarkup(buttons)

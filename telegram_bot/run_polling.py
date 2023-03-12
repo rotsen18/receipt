@@ -7,14 +7,15 @@ django.setup()
 from telegram import Bot, BotCommand
 from telegram.ext import Updater
 
-from receipt.settings import TELEGRAM_BOT_TOKEN
-from telegram_bot.dispatcher import setup_dispatcher
+from receipt.settings import TELEGRAM_BOT_TOKEN, DEBUG
+from telegram_bot.dispatcher import setup_dispatcher, context_types
 
 
 def run_polling(tg_token: str = TELEGRAM_BOT_TOKEN):
     """ Run bot in polling mode """
-    updater = Updater(tg_token, use_context=True)
+    n_workers = 0 if DEBUG else 4
 
+    updater = Updater(token=tg_token, context_types=context_types, workers=n_workers, use_context=True)
     dp = updater.dispatcher
     dp = setup_dispatcher(dp)
 

@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Avg
+from telegram import PhotoSize
 
 from mixins.models import NameABC, DateTimesABC, AuthorABC
 
@@ -77,3 +78,25 @@ class ReceiptComment(DateTimesABC, AuthorABC):
         verbose_name = 'Оцінка рецепту'
         verbose_name_plural = 'Оцінки рецепту'
         ordering = ['-created_at']
+
+
+class ReceiptImage(DateTimesABC):
+    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='photos')
+    file_id = models.CharField(max_length=50)
+    file_unique_id = models.CharField(max_length=20)
+    file_size = models.IntegerField(null=True)
+    width = models.IntegerField()
+    height = models.IntegerField()
+
+    class Meta:
+        verbose_name = 'Фото'
+        verbose_name_plural = 'Фото'
+
+    @property
+    def get_photosize(self):
+        return PhotoSize(self.file_id, self.file_unique_id, self.width, self.height, self.file_size)
+
+    @property
+    def image_url(self):
+        file = self.get_photosize.get_file()
+        return file.file_path

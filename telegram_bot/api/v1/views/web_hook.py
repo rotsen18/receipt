@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from telegram_bot.dispatcher import dispatcher
+from telegram_bot.dispatcher import bot_dispatcher
 from telegram_bot.main import bot
 
 
@@ -16,7 +16,7 @@ class WebHookView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         update = Update.de_json(data, bot)
-        dispatcher.process_update(update)
+        bot_dispatcher.process_update(update)
         return Response('ok')
 
     def get(self, request, *args, **kwargs):  # for debug
