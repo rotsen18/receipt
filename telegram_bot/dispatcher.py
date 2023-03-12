@@ -8,8 +8,8 @@ from telegram.ext import (
 )
 
 from receipt.settings import DEBUG
-from telegram_bot.handlers.onboarding import handlers as onboarding_handlers
-from telegram_bot.handlers.onboarding.static_text import list_receipt_text
+from telegram_bot.handlers.receipts import handlers as onboarding_handlers
+from telegram_bot.handlers.receipts.static_text import list_receipt_text
 from telegram_bot.main import bot
 
 

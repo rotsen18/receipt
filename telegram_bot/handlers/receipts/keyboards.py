@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 
-from telegram_bot.handlers.onboarding.static_text import detail_receipt_text, list_receipt_text
+from telegram_bot.handlers.receipts.static_text import detail_receipt_text, list_receipt_text
 
 
 def make_keyboard_for_start_command() -> InlineKeyboardMarkup:
