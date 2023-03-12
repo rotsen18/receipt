@@ -194,7 +194,7 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-SWAGGER_URL = env.str('SWAGGER_URL', None)
+SWAGGER_URL = env.str('SWAGGER_URL', 'swagger')
 ADMIN_URL = env.str('ADMIN_URL', 'admin')
 
 TELEGRAM_BOT_TOKEN = env.str('TELEGRAM_BOT_TOKEN')
