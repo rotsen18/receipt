@@ -4,28 +4,9 @@ from telegram.ext import CallbackContext
 from culinary.api.v1.serializers.receipt import ReceiptListSerializer, ReceiptDetailSerializer
 from culinary.models import Receipt
 from telegram_bot.handlers.receipts import static_text
-from telegram_bot.handlers.receipts.keyboards import make_menu_keyboard
+from telegram_bot.handlers.onboarding.keyboards import make_main_menu_keyboard
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
-from telegram_bot.models import TelegramUser
 from telegram_bot.handlers.receipts import keyboards
-
-
-def command_start(update: Update, context: CallbackContext) -> None:
-    user_id = update.message.from_user.id
-    user_data = {
-        'first_name': update.message.from_user.first_name,
-        'last_name': update.message.from_user.last_name,
-        'username': update.message.from_user.username,
-        'telegram_id': user_id,
-    }
-    u, created = TelegramUser.objects.get_or_create(telegram_id=user_id, defaults=user_data)
-
-    if created:
-        text = static_text.start_created.format(first_name=u.first_name)
-    else:
-        text = static_text.start_not_created.format(first_name=u.first_name)
-
-    update.message.reply_text(text=text, reply_markup=keyboards.make_keyboard_for_start_command())
 
 
 def receipts(update: Update, context: CallbackContext) -> None:
@@ -49,7 +30,7 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
     messages = [
         {'text': static_text.receipt_detail_title.format(**serializer.data)},
         {'text': '\n'.join([f'{num}. {value}' for num, value in enumerate(serializer.data.get('components'), 1)])},
-        {'text': serializer.data.get('procedure'), 'reply_markup': make_menu_keyboard()},
+        {'text': serializer.data.get('procedure'), 'reply_markup': make_main_menu_keyboard()},
     ]
     for message in messages:
         context.bot.send_message(
@@ -57,3 +38,7 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
             parse_mode=ParseMode.HTML,
             **message
         )
+
+
+def add_comment(update: Update, context: CallbackContext):
+    pass
