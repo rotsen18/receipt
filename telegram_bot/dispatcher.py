@@ -17,7 +17,6 @@ from telegram_bot.models import TelegramUser
 
 
 def setup_dispatcher(dp):
-    # dp.add_handler(UserMiddleware())
     dp.add_handler(CommandHandler("start", onboarding_handlers.command_start))
     dp.add_handler(CommandHandler("receipts", receipts_handlers.receipts))
 
@@ -54,11 +53,11 @@ class CustomCallbackContext(CallbackContext):
     def get_user(update: Update):
         user_id = update.effective_user.id
         user_data = {
-            'first_name': update.message.from_user.first_name,
-            'last_name': update.message.from_user.last_name,
-            'full_name': update.message.from_user.full_name,
-            'name': update.message.from_user.name,
-            'username': update.message.from_user.username,
+            'first_name': update.effective_message.from_user.first_name,
+            'last_name': update.effective_message.from_user.last_name,
+            'full_name': update.effective_message.from_user.full_name,
+            'name': update.effective_message.from_user.name,
+            'username': update.effective_message.from_user.username,
             'telegram_id': user_id,
         }
         user, _ = TelegramUser.objects.get_or_create(telegram_id=user_id, defaults=user_data)
