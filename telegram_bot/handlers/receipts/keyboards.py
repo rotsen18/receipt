@@ -1,6 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from telegram_bot.handlers.receipts import static_text
+from telegram_bot.models import TelegramUser
 
 
 def make_keyboard_for_receipt(receipt_id: int) -> InlineKeyboardMarkup:
@@ -14,7 +15,7 @@ def make_keyboard_for_receipt(receipt_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def make_keyboard_for_detail_receipt(receipt_id: int, comments_amount: int = 0) -> InlineKeyboardMarkup:
+def make_keyboard_for_detail_receipt(user: TelegramUser, receipt_id: int, comments_amount: int = 0) -> InlineKeyboardMarkup:
     comments_button = InlineKeyboardButton(
         static_text.comments_list_button_name,
         callback_data=f'{static_text.comments_list_button_data}{receipt_id}'
@@ -27,10 +28,17 @@ def make_keyboard_for_detail_receipt(receipt_id: int, comments_amount: int = 0) 
         static_text.receipt_edit_button_name,
         callback_data=f'{static_text.receipt_edit_button_data}{receipt_id}'
     )
-    buttons = [[
-        add_comment_button, edit_button
-    ]]
+    upload_photo = InlineKeyboardButton(
+        static_text.receipt_photo_create_button_name,
+        callback_data=f'{static_text.receipt_photo_create_button_data}{receipt_id}'
+    )
+    admnin_buttons = [edit_button, upload_photo]
+    buttons = [
+        [add_comment_button],
+    ]
     if comments_amount:
         buttons[0].append(comments_button)
+    if user.is_telegram_admin:
+        buttons.append(admnin_buttons)
 
     return InlineKeyboardMarkup(buttons)

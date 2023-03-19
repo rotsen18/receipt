@@ -14,11 +14,12 @@ class TelegramUser(models.Model):
         on_delete=models.CASCADE,
         related_name='telegram_user'
     )
-    telegram_id = models.IntegerField(default=None, null=True, blank=True, verbose_name='ID юзера в телеграмi.')
+    telegram_id = models.BigIntegerField(default=None, null=True, blank=True, verbose_name='ID юзера в телеграмi.')
     first_name = models.CharField(max_length=35, default='')
     last_name = models.CharField(max_length=35, null=True, default='')
     full_name = models.CharField(max_length=35, null=True, default='')
-    username = models.CharField(max_length=35)
+    name = models.CharField(max_length=35, null=True, default='')
+    username = models.CharField(max_length=35, null=True, default='')
 
     @property
     def is_telegram_admin(self):
