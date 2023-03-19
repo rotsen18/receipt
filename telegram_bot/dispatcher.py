@@ -56,6 +56,8 @@ class CustomCallbackContext(CallbackContext):
         user_data = {
             'first_name': update.message.from_user.first_name,
             'last_name': update.message.from_user.last_name,
+            'full_name': update.message.from_user.full_name,
+            'name': update.message.from_user.name,
             'username': update.message.from_user.username,
             'telegram_id': user_id,
         }
