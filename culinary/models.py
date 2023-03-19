@@ -82,7 +82,7 @@ class ReceiptComment(DateTimesABC, AuthorABC):
 
 class ReceiptImage(DateTimesABC):
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='photos')
-    file_id = models.CharField(max_length=50)
+    file_id = models.CharField(max_length=200)
     file_unique_id = models.CharField(max_length=20)
     file_size = models.IntegerField(null=True)
     width = models.IntegerField()
@@ -93,10 +93,10 @@ class ReceiptImage(DateTimesABC):
         verbose_name_plural = 'Фото'
 
     @property
-    def get_photosize(self):
+    def photosize(self):
         return PhotoSize(self.file_id, self.file_unique_id, self.width, self.height, self.file_size)
 
     @property
     def image_url(self):
-        file = self.get_photosize.get_file()
+        file = self.photosize.get_file()
         return file.file_path

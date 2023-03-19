@@ -1,8 +1,10 @@
 from telegram import ParseMode, Update
-from telegram.ext import CallbackContext
+from telegram.ext import (
+    CallbackContext, ConversationHandler, CallbackQueryHandler, MessageHandler, Filters,
+)
 
 from culinary.api.v1.serializers.receipt import ReceiptListSerializer, ReceiptDetailSerializer
-from culinary.models import Receipt, ReceiptComment
+from culinary.models import Receipt, ReceiptComment, ReceiptImage
 from telegram_bot.handlers.handlers import not_implemented
 from telegram_bot.handlers.receipts import static_text
 from telegram_bot.handlers.receipts.serializers import BotReceiptCommentSerializer
@@ -34,9 +36,15 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
         {'text': '\n'.join([f'{num}. {value}' for num, value in enumerate(serializer.data.get('components'), 1)])},
         {
             'text': serializer.data.get('procedure'),
-            'reply_markup': keyboards.make_keyboard_for_detail_receipt(receipt_id, receipt.comments.count())
+            'reply_markup': keyboards.make_keyboard_for_detail_receipt(
+                user=context.user,
+                receipt_id=receipt_id,
+                comments_amount=receipt.comments.count()
+            )
         },
     ]
+    for image in receipt.photos.all():
+        context.bot.send_photo(user_id, image.photosize)
     for message in messages:
         context.bot.send_message(
             user_id,
@@ -66,3 +74,42 @@ def view_comments(update: Update, context: CallbackContext):
 @not_implemented
 def add_comment(update: Update, context: CallbackContext):
     pass
+
+
+def handle_upload_photo(update, context):
+    receipt_id = int(update.callback_query.data.replace(static_text.receipt_photo_create_button_data, ''))
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Please upload a photo for your receipt.")
+    context.user_data['upload_photo'] = True
+    context.chat_data['receipt_id'] = receipt_id
+    return UPLOAD_PHOTO
+
+
+UPLOAD_PHOTO = range(1)
+
+
+def handle_photo(update, context):
+    receipt_id = context.chat_data.get('receipt_id')
+
+    ReceiptImage.objects.get_or_create(
+        receipt_id=receipt_id,
+        file_id=update.message.photo[-1].file_id,
+        file_size=update.message.photo[-1].file_size,
+        file_unique_id=update.message.photo[-1].file_unique_id,
+        height=update.message.photo[-1].height,
+        width=update.message.photo[-1].width
+    )
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text="The photo has been uploaded.")
+    context.user_data.clear()
+    return ConversationHandler.END
+
+
+upload_photo_conversation_handler = ConversationHandler(
+    entry_points=[
+        CallbackQueryHandler(handle_upload_photo, pattern=rf'{static_text.receipt_photo_create_button_data}\d+')
+    ],
+    states={
+        UPLOAD_PHOTO: [MessageHandler(Filters.photo, handle_photo)],
+    },
+    fallbacks=[],
+)

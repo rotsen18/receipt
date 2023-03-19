@@ -5,6 +5,9 @@ receipt_view_button_name = "Подивитися рецепт"
 receipt_view_button_data = 'receipt_view_receipt_id='
 receipt_edit_button_name = '✏️Змінити'
 receipt_edit_button_data = 'receipt_edit_receipt_id='
+receipt_photo_create_button_name = '📷Добавити'
+receipt_photo_create_button_data = 'receipt_photo_receipt_id='
+
 
 comments_list_button_name = '🗒Коментарі'
 comments_list_button_data = 'comments_view_receipt_id='
