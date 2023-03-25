@@ -24,6 +24,11 @@ def make_keyboard_for_detail_receipt(user: TelegramUser, receipt_id: int, commen
         static_text.comment_create_button_name,
         callback_data=f'{static_text.comment_create_button_data}{receipt_id}'
     )
+    recalculate_button = InlineKeyboardButton(
+        static_text.receipt_recalculate_portions_button_name,
+        callback_data=f'{static_text.receipt_recalculate_portions_button_data}{receipt_id}'
+    )
+
     edit_button = InlineKeyboardButton(
         static_text.receipt_edit_button_name,
         callback_data=f'{static_text.receipt_edit_button_data}{receipt_id}'
@@ -33,8 +38,9 @@ def make_keyboard_for_detail_receipt(user: TelegramUser, receipt_id: int, commen
         callback_data=f'{static_text.receipt_photo_create_button_data}{receipt_id}'
     )
     admnin_buttons = [edit_button, upload_photo]
+
     buttons = [
-        [add_comment_button],
+        [add_comment_button, recalculate_button],
     ]
     if comments_amount:
         buttons[0].append(comments_button)
