@@ -47,7 +47,7 @@ class ReceiptComponent(models.Model):
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
-        if self.user_measurement_unit is None:
+        if self.measurement_unit is None:
             self.user_measurement_unit = self.ingredient.default_measurement_unit
         super().save(force_insert, force_update, using, update_fields)
 
