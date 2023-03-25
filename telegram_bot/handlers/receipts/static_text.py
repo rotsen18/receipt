@@ -9,6 +9,9 @@ receipt_photo_create_button_name = '📷Добавити'
 receipt_photo_create_button_data = 'receipt_photo_receipt_id='
 receipt_recalculate_portions_button_name = '🧮порції'
 receipt_recalculate_portions_button_data = 'receipt_recalculate_receipt_id='
+recalculate_portion_question = 'На скільки порцій перерахувати рецепт?'
+recalculate_result_title = 'Базовий рецепт був розрахований на {previous_portions} порцій\nНа {new_portions} порцій рецепт буде виглядати так:'
+
 
 comments_list_button_name = '🗒Коментарі'
 comments_list_button_data = 'comments_view_receipt_id='

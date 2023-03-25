@@ -12,7 +12,10 @@ from receipt.settings import DEBUG
 from telegram_bot.handlers.onboarding import handlers as onboarding_handlers
 from telegram_bot.handlers.receipts import handlers as receipts_handlers
 from telegram_bot.handlers.receipts import static_text as receipt_static_text
-from telegram_bot.handlers.receipts.handlers import handle_upload_photo, upload_photo_conversation_handler
+from telegram_bot.handlers.receipts.handlers import (
+    upload_photo_conversation_handler,
+    handle_upload_photo, new_portions_conversation_handler, handle_recalculating, handle_insert_portions,
+)
 from telegram_bot.main import bot
 from telegram_bot.models import TelegramUser
 
@@ -51,6 +54,13 @@ def setup_dispatcher(dp):
         CallbackQueryHandler(
             handle_upload_photo,
             pattern=rf'{receipt_static_text.receipt_photo_create_button_data}\d+'
+        )
+    )
+    dp.add_handler(new_portions_conversation_handler)
+    dp.add_handler(
+        CallbackQueryHandler(
+            handle_insert_portions,
+            pattern=rf'{receipt_static_text.receipt_recalculate_portions_button_data}\d+'
         )
     )
 
