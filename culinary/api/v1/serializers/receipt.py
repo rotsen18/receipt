@@ -8,7 +8,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Receipt
         fields = (
-            'name', 'name', 'description', 'main_cooking_principe', 'procedure',  'category', 'components'
+            'name', 'name', 'description', 'main_cooking_principe', 'procedure', 'category', 'components'
         )
 
 
@@ -25,7 +25,7 @@ class ReceiptListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Receipt
-        fields = ('id', 'name', 'description', 'main_cooking_principe',  'category', 'link', 'raking')
+        fields = ('id', 'name', 'description', 'main_cooking_principe', 'category', 'link', 'raking')
 
 
 class ReceiptComponentSerializer(serializers.ModelSerializer):

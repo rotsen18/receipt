@@ -1,4 +1,3 @@
-from django.urls import path
 from rest_framework_nested import routers
 
 from culinary.api.v1.views.receipt import ReceiptViewSet, ReceiptComponentViewSet, ReceiptCommentViewSet

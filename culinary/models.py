@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Avg
 from telegram import PhotoSize
@@ -12,9 +13,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     devices = models.ManyToManyField('directory.Device')
     category = models.ForeignKey('directory.CulinaryCategory', on_delete=models.PROTECT, null=True, blank=True)
     source_link = models.URLField(null=True)
-
-    def __str__(self):
-        return self.name
+    receipt_portions = models.IntegerField(validators=[MinValueValidator(limit_value=1)])
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -24,6 +23,9 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
             models.Index(fields=['name'])
         ]
 
+    def __str__(self):
+        return self.name
+
     @property
     def raking(self):
         return round(self.comments.aggregate(avg=Avg('rate')).get('avg'), 1)
@@ -32,7 +34,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
 class ReceiptComponent(models.Model):
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='components')
     ingredient = models.ForeignKey('directory.Ingredient', on_delete=models.CASCADE)
-    user_measurement_unit = models.ForeignKey(
+    measurement_unit = models.ForeignKey(
         'directory.MeasurementUnit',
         null=True,
         on_delete=models.CASCADE,
@@ -43,13 +45,12 @@ class ReceiptComponent(models.Model):
     def __str__(self):
         return f'{self.ingredient} - {self.amount} {self.measurement_unit}'
 
-    @property
-    def measurement_unit(self):
-        if self.user_measurement_unit:
-            return self.user_measurement_unit
-        elif self.ingredient.default_measurement_unit:
-            return self.ingredient.default_measurement_unit
-        return
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        if self.measurement_unit is None:
+            self.user_measurement_unit = self.ingredient.default_measurement_unit
+        super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
         verbose_name = 'Складник рецепту'
