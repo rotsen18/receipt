@@ -33,4 +33,4 @@ if settings.SWAGGER_URL:
         path('api/v1/Go9lYiNcza68F2lzPrX/', SpectacularAPIView.as_view(urlconf=urlpatterns), name='schema'),
         path('api/v1/Go9lYiNcza68F2lzPrX.json', SpectacularJSONAPIView.as_view(urlconf=urlpatterns), name='schema'),
         path(f'api/v1/{settings.SWAGGER_URL}', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-        ]
+    ]

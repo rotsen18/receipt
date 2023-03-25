@@ -15,7 +15,11 @@ def make_keyboard_for_receipt(receipt_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-def make_keyboard_for_detail_receipt(user: TelegramUser, receipt_id: int, comments_amount: int = 0) -> InlineKeyboardMarkup:
+def make_keyboard_for_detail_receipt(
+    user: TelegramUser,
+    receipt_id: int,
+    comments_amount: int = 0
+) -> InlineKeyboardMarkup:
     comments_button = InlineKeyboardButton(
         static_text.comments_list_button_name,
         callback_data=f'{static_text.comments_list_button_data}{receipt_id}'

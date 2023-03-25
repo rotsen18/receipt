@@ -11,7 +11,9 @@ class Command(BaseCommand):
         bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
         webhook_endpoint = os.environ.get('TELEGRAM_WEBHOOK_ENDPOINT')
         if not bot_token or not webhook_endpoint:
-            self.stdout.write(self.style.ERROR('Please set TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_ENDPOINT in your .env file'))
+            self.stdout.write(
+                self.style.ERROR('Please set TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_ENDPOINT in your .env file')
+            )
             return
         webhook_url = f'https://api.telegram.org/bot{bot_token}/setWebhook?url={webhook_endpoint}'
         bot = Bot(token=bot_token)
