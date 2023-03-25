@@ -1,5 +1,4 @@
 from rest_framework import viewsets, mixins
-from rest_framework.generics import ListCreateAPIView
 
 from culinary.models import Receipt, ReceiptComponent, ReceiptComment
 from culinary.api.v1.serializers import receipt as serializers

@@ -1,5 +1,5 @@
 [flake8]
-exclude = .git,__pycache__,docs/source/conf.py,old,build,dist,*/migrations/*,venv,__init__.py
+exclude = .git,__pycache__,docs/source/conf.py,old,build,dist,*/migrations/*,venv,__init__.py,static_text.py
 inline-quotes = '
 max-line-length = 120
 select = E,F,W,C4,Q0, DJ, N80, ABS

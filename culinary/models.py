@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Avg
 from telegram import PhotoSize
@@ -12,7 +13,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     devices = models.ManyToManyField('directory.Device')
     category = models.ForeignKey('directory.CulinaryCategory', on_delete=models.PROTECT, null=True, blank=True)
     source_link = models.URLField(null=True)
-    receipt_portions = models.IntegerField()
+    receipt_portions = models.IntegerField(validators=[MinValueValidator(limit_value=1)])
 
     class Meta:
         verbose_name = 'Рецепт'

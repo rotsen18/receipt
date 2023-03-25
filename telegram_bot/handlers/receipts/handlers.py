@@ -5,11 +5,15 @@ from telegram.ext import (
 
 from culinary.api.v1.serializers.receipt import ReceiptListSerializer, ReceiptDetailSerializer
 from culinary.models import Receipt, ReceiptComment, ReceiptImage
+from culinary.services import PortionService
 from telegram_bot.handlers.handlers import not_implemented
 from telegram_bot.handlers.receipts import static_text
 from telegram_bot.handlers.receipts.serializers import BotReceiptCommentSerializer
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
 from telegram_bot.handlers.receipts import keyboards
+
+UPLOAD_PHOTO = range(1)
+RECALCULATE_PORTIONS = range(1)
 
 
 def receipts(update: Update, context: CallbackContext) -> None:
@@ -84,9 +88,6 @@ def handle_upload_photo(update, context):
     return UPLOAD_PHOTO
 
 
-UPLOAD_PHOTO = range(1)
-
-
 def handle_photo(update, context):
     receipt_id = context.chat_data.get('receipt_id')
 
@@ -110,6 +111,50 @@ upload_photo_conversation_handler = ConversationHandler(
     ],
     states={
         UPLOAD_PHOTO: [MessageHandler(Filters.photo, handle_photo)],
+    },
+    fallbacks=[],
+)
+
+
+def handle_insert_portions(update, context):
+    receipt_id = int(update.callback_query.data.replace(static_text.receipt_recalculate_portions_button_data, ''))
+    context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.recalculate_portion_question)
+    context.chat_data['receipt_id'] = receipt_id
+    return RECALCULATE_PORTIONS
+
+
+def handle_recalculating(update, context):
+    receipt_id = context.chat_data.get('receipt_id')
+    receipt = Receipt.objects.get(id=receipt_id)
+    portions = int(update.message.text)
+
+    new_data = PortionService.new_portions(receipt=receipt, portions=portions)
+    title = static_text.recalculate_result_title.format(
+        previous_portions=receipt.receipt_portions,
+        new_portions=portions
+    )
+
+    answer = [title]
+    for num, component in enumerate(new_data, 1):
+        row = f"{num}. {component.get('name')} - {component.get('amount')} {component.get('measurement_unit')}"
+        answer.append(row)
+
+    text = '\n'.join(answer)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+    return ConversationHandler.END
+
+
+new_portions_conversation_handler = ConversationHandler(
+    entry_points=[
+        CallbackQueryHandler(
+            handle_insert_portions,
+            pattern=rf'{static_text.receipt_recalculate_portions_button_data}\d+'
+        )
+    ],
+    states={
+        RECALCULATE_PORTIONS: [
+            MessageHandler(Filters.text, handle_recalculating)
+        ]
     },
     fallbacks=[],
 )
