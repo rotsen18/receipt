@@ -33,7 +33,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
 class ReceiptComponent(models.Model):
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='components')
     ingredient = models.ForeignKey('directory.Ingredient', on_delete=models.CASCADE)
-    user_measurement_unit = models.ForeignKey(
+    measurement_unit = models.ForeignKey(
         'directory.MeasurementUnit',
         null=True,
         on_delete=models.CASCADE,
@@ -44,13 +44,12 @@ class ReceiptComponent(models.Model):
     def __str__(self):
         return f'{self.ingredient} - {self.amount} {self.measurement_unit}'
 
-    @property
-    def measurement_unit(self):
-        if self.user_measurement_unit:
-            return self.user_measurement_unit
-        elif self.ingredient.default_measurement_unit:
-            return self.ingredient.default_measurement_unit
-        return
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        if self.user_measurement_unit is None:
+            self.user_measurement_unit = self.ingredient.default_measurement_unit
+        super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
         verbose_name = 'Складник рецепту'
