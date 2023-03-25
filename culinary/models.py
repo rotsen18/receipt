@@ -12,9 +12,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     devices = models.ManyToManyField('directory.Device')
     category = models.ForeignKey('directory.CulinaryCategory', on_delete=models.PROTECT, null=True, blank=True)
     source_link = models.URLField(null=True)
-
-    def __str__(self):
-        return self.name
+    receipt_portions = models.IntegerField()
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -23,6 +21,9 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
         indexes = [
             models.Index(fields=['name'])
         ]
+
+    def __str__(self):
+        return self.name
 
     @property
     def raking(self):
