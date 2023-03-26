@@ -32,6 +32,10 @@ def make_keyboard_for_detail_receipt(
         static_text.receipt_recalculate_portions_button_name,
         callback_data=f'{static_text.receipt_recalculate_portions_button_data}{receipt_id}'
     )
+    all_categories_button = InlineKeyboardButton(
+        static_text.receipt_recalculate_portions_button_name,
+        callback_data=f'{static_text.receipt_recalculate_portions_button_data}{receipt_id}'
+    )
 
     edit_button = InlineKeyboardButton(
         static_text.receipt_edit_button_name,
@@ -51,4 +55,16 @@ def make_keyboard_for_detail_receipt(
     if user.is_telegram_admin:
         buttons.append(admnin_buttons)
 
+    return InlineKeyboardMarkup(buttons)
+
+
+def make_keyboard_for_category(category_id: int) -> InlineKeyboardMarkup:
+    category_button = InlineKeyboardButton(
+        static_text.category_view_button_name,
+        callback_data=f'{static_text.category_view_button_data}{category_id}'
+    )
+
+    buttons = [
+        [category_button],
+    ]
     return InlineKeyboardMarkup(buttons)

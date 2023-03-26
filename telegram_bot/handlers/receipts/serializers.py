@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from culinary.models import ReceiptComment
+from directory.api.v1.serializers.food import CulinaryCategorySerializer
+from directory.models import CulinaryCategory
 
 
 class BotReceiptCommentSerializer(serializers.ModelSerializer):
@@ -14,3 +16,11 @@ class BotReceiptCommentSerializer(serializers.ModelSerializer):
 
     def get_rate(self, obj):
         return '⭐' * obj.rate
+
+
+class BotCulinaryCategorySerializer(CulinaryCategorySerializer):
+    receipt_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = CulinaryCategory
+        fields = ('name', 'id', 'description', 'receipt_count')

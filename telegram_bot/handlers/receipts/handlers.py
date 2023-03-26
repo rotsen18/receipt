@@ -1,3 +1,4 @@
+from django.db.models import Count
 from telegram import ParseMode, Update
 from telegram.ext import (
     CallbackContext, ConversationHandler, CallbackQueryHandler, MessageHandler, Filters,
@@ -6,9 +7,10 @@ from telegram.ext import (
 from culinary.api.v1.serializers.receipt import ReceiptListSerializer, ReceiptDetailSerializer
 from culinary.models import Receipt, ReceiptComment, ReceiptImage
 from culinary.services import PortionService
+from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
 from telegram_bot.handlers.receipts import static_text
-from telegram_bot.handlers.receipts.serializers import BotReceiptCommentSerializer
+from telegram_bot.handlers.receipts.serializers import BotReceiptCommentSerializer, BotCulinaryCategorySerializer
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
 from telegram_bot.handlers.receipts import keyboards
 
@@ -25,7 +27,7 @@ def receipts(update: Update, context: CallbackContext) -> None:
         context.bot.send_message(
             user_id,
             text,
-            reply_markup=keyboards.make_keyboard_for_receipt(receipt_id=1),
+            reply_markup=keyboards.make_keyboard_for_receipt(receipt_id=data.get('id')),
             parse_mode=ParseMode.HTML
         )
 
@@ -158,3 +160,36 @@ new_portions_conversation_handler = ConversationHandler(
     },
     fallbacks=[],
 )
+
+
+def handle_all_categories(update, context):
+    categories = CulinaryCategory.objects.annotate(receipt_count=Count('receipt'))
+    serializer = BotCulinaryCategorySerializer(instance=categories, many=True)
+
+    for category in serializer.data:
+        text = static_text.category_description.format(
+            name=category.get('name'),
+            receipt_count=category.get('receipt_count'),
+            description=category.get('description'),
+        )
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=text,
+            reply_markup=keyboards.make_keyboard_for_category(category_id=1),
+            parse_mode=ParseMode.HTML
+        )
+
+
+def handle_category(update, context):
+    user_id = extract_user_data_from_update(update)['user_id']
+    category_id = int(update.callback_query.data.replace(static_text.category_view_button_data, ''))
+    receipts = Receipt.objects.filter(category_id=category_id)
+    serializer = ReceiptListSerializer(instance=receipts, many=True)
+    for data in serializer.data:
+        text = static_text.receipt_short_text.format(**data)
+        context.bot.send_message(
+            user_id,
+            text,
+            reply_markup=keyboards.make_keyboard_for_receipt(receipt_id=data.get('id')),
+            parse_mode=ParseMode.HTML
+        )
