@@ -24,10 +24,15 @@ def receipts(update: Update, context: CallbackContext) -> None:
     serializer = ReceiptListSerializer(instance=receipts, many=True)
     for data in serializer.data:
         text = static_text.receipt_short_text.format(**data)
+        keyboard = keyboards.make_keyboard_for_receipt(
+            receipt_id=data.get('id'),
+            category_name=data.get('category_name'),
+            category_id=data.get('category_id')
+        )
         context.bot.send_message(
             user_id,
             text,
-            reply_markup=keyboards.make_keyboard_for_receipt(receipt_id=data.get('id')),
+            reply_markup=keyboard,
             parse_mode=ParseMode.HTML
         )
 
@@ -172,10 +177,13 @@ def handle_all_categories(update, context):
             receipt_count=category.get('receipt_count'),
             description=category.get('description'),
         )
+        keyboard = None
+        if category.get('receipt_count'):
+            keyboard = keyboards.make_keyboard_for_category(category_id=category.get('id'))
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=text,
-            reply_markup=keyboards.make_keyboard_for_category(category_id=1),
+            reply_markup=keyboard,
             parse_mode=ParseMode.HTML
         )
 
@@ -187,9 +195,14 @@ def handle_category(update, context):
     serializer = ReceiptListSerializer(instance=receipts, many=True)
     for data in serializer.data:
         text = static_text.receipt_short_text.format(**data)
+        keyboard = keyboards.make_keyboard_for_receipt(
+            receipt_id=data.get('id'),
+            category_name=data.get('category_name'),
+            category_id=data.get('category_id')
+        )
         context.bot.send_message(
             user_id,
             text,
-            reply_markup=keyboards.make_keyboard_for_receipt(receipt_id=data.get('id')),
+            reply_markup=keyboard,
             parse_mode=ParseMode.HTML
         )

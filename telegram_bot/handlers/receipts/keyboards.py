@@ -4,13 +4,16 @@ from telegram_bot.handlers.receipts import static_text
 from telegram_bot.models import TelegramUser
 
 
-def make_keyboard_for_receipt(receipt_id: int) -> InlineKeyboardMarkup:
-    buttons = [[
-        InlineKeyboardButton(
+def make_keyboard_for_receipt(receipt_id: int, category_name: str, category_id: int) -> InlineKeyboardMarkup:
+    receipt_button = InlineKeyboardButton(
             static_text.receipt_view_button_name,
             callback_data=f'{static_text.receipt_view_button_data}{receipt_id}'
-        ),
-    ]]
+        )
+    category_receipts_button = InlineKeyboardButton(
+            static_text.category_from_receipt_button_name.format(category_name=category_name),
+            callback_data=f'{static_text.category_view_button_data}{category_id}'
+        )
+    buttons = [[receipt_button, category_receipts_button]]
 
     return InlineKeyboardMarkup(buttons)
 
