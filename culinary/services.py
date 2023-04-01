@@ -16,5 +16,5 @@ class PortionService:
                 function='ROUND',
                 template='%(function)s(%(expressions)s::numeric, 1)'
                 )
-        ).values('ingr_name', 'measurement_unit_name', 'new_amount')
+        ).values('ingredient_name', 'measurement_unit_name', 'new_amount')
         return list(qs)
