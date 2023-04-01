@@ -77,6 +77,7 @@ def edit_receipt(update: Update, context: CallbackContext):
 def add_receipt(update: Update, context: CallbackContext):
     create_url = reverse('admin:culinary_receipt_add')
     base_url = settings.RENDER_EXTERNAL_HOSTNAME or 'https://receipt-5w35.onrender.com'
+    print(base_url)
     full_url = urljoin(base_url, create_url)
     update.message.reply_text(text=full_url)
 
