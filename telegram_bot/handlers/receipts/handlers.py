@@ -143,7 +143,8 @@ def handle_recalculating(update, context):
 
     answer = [title]
     for num, component in enumerate(new_data, 1):
-        row = f"{num}. {component.get('name')} - {component.get('amount')} {component.get('measurement_unit')}"
+        row = f"{num}. {component.get('ingredient_name')} " \
+              f"- {component.get('new_amount')} {component.get('measurement_unit_name')}"
         answer.append(row)
 
     text = '\n'.join(answer)
