@@ -13,11 +13,7 @@ def make_keyboard_for_receipt(user: TelegramUser, receipt_id: int, category_name
             static_text.category_from_receipt_button_name.format(category_name=category_name),
             callback_data=f'{static_text.category_view_button_data}{category_id}'
         )
-    new_receipt_button = InlineKeyboardButton(static_text.receipt_create_button_name)
     buttons = [[receipt_button, category_receipts_button]]
-    admnin_buttons = [new_receipt_button]
-    if user.is_telegram_admin:
-        buttons.append(admnin_buttons)
     return InlineKeyboardMarkup(buttons)
 
 

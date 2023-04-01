@@ -1,14 +1,17 @@
+from urllib.parse import urljoin
+
 from django.db.models import Count
+from django.urls import reverse
+from django.conf import settings
 from telegram import ParseMode, Update
 from telegram.ext import (
-    ConversationHandler, CallbackQueryHandler, MessageHandler, Filters,
+    ConversationHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
 )
 
 from culinary.api.v1.serializers.receipt import ReceiptListSerializer, ReceiptDetailSerializer
 from culinary.models import Receipt, ReceiptComment, ReceiptImage
 from culinary.services import PortionService
 from directory.models import CulinaryCategory
-from telegram_bot.dispatcher import CustomCallbackContext
 from telegram_bot.handlers.handlers import not_implemented
 from telegram_bot.handlers.receipts import static_text
 from telegram_bot.handlers.receipts.serializers import BotReceiptCommentSerializer, BotCulinaryCategorySerializer
@@ -19,7 +22,7 @@ UPLOAD_PHOTO = range(1)
 RECALCULATE_PORTIONS = range(1)
 
 
-def receipts(update: Update, context: CustomCallbackContext) -> None:
+def receipts(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)['user_id']
     receipts = Receipt.objects.all()
     serializer = ReceiptListSerializer(instance=receipts, many=True)
@@ -39,7 +42,7 @@ def receipts(update: Update, context: CustomCallbackContext) -> None:
         )
 
 
-def detail_receipt(update: Update, context: CustomCallbackContext) -> None:
+def detail_receipt(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)['user_id']
     receipt_id = int(update.callback_query.data.replace(static_text.receipt_view_button_data, ''))
     receipt = Receipt.objects.get(id=receipt_id)
@@ -67,11 +70,19 @@ def detail_receipt(update: Update, context: CustomCallbackContext) -> None:
 
 
 @not_implemented
-def edit_receipt(update: Update, context: CustomCallbackContext):
+def edit_receipt(update: Update, context: CallbackContext):
     pass
 
 
-def view_comments(update: Update, context: CustomCallbackContext):
+def add_receipt(update: Update, context: CallbackContext):
+    url = 'https://receipt-5w35.onrender.com/api/v1/hK84Fyde7Jbi0S9dOd1Zculinary/receipt/add/'
+    create_url = reverse('admin:culinary_receipt_add')
+    base_url = settings.RENDER_EXTERNAL_HOSTNAME
+    full_url = urljoin(base_url, create_url)
+    update.message.reply_text(text=full_url)
+
+
+def view_comments(update: Update, context: CallbackContext):
     user_id = extract_user_data_from_update(update)['user_id']
     receipt_id = int(update.callback_query.data.replace(static_text.comments_list_button_data, ''))
     comments = ReceiptComment.objects.filter(receipt_id=receipt_id)
@@ -85,7 +96,7 @@ def view_comments(update: Update, context: CustomCallbackContext):
 
 
 @not_implemented
-def add_comment(update: Update, context: CustomCallbackContext):
+def add_comment(update: Update, context: CallbackContext):
     pass
 
 
@@ -97,7 +108,7 @@ def handle_upload_photo(update, context):
     return UPLOAD_PHOTO
 
 
-def handle_photo(update, context: CustomCallbackContext):
+def handle_photo(update, context: CallbackContext):
     receipt_id = context.chat_data.get('receipt_id')
 
     ReceiptImage.objects.get_or_create(
@@ -125,14 +136,14 @@ upload_photo_conversation_handler = ConversationHandler(
 )
 
 
-def handle_insert_portions(update, context: CustomCallbackContext):
+def handle_insert_portions(update, context: CallbackContext):
     receipt_id = int(update.callback_query.data.replace(static_text.receipt_recalculate_portions_button_data, ''))
     context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.recalculate_portion_question)
     context.chat_data['receipt_id'] = receipt_id
     return RECALCULATE_PORTIONS
 
 
-def handle_recalculating(update, context: CustomCallbackContext):
+def handle_recalculating(update, context: CallbackContext):
     receipt_id = context.chat_data.get('receipt_id')
     receipt = Receipt.objects.get(id=receipt_id)
     portions = int(update.message.text)
@@ -170,7 +181,7 @@ new_portions_conversation_handler = ConversationHandler(
 )
 
 
-def handle_all_categories(update, context:CustomCallbackContext):
+def handle_all_categories(update, context:CallbackContext):
     categories = CulinaryCategory.objects.annotate(receipt_count=Count('receipt'))
     serializer = BotCulinaryCategorySerializer(instance=categories, many=True)
 
@@ -191,7 +202,7 @@ def handle_all_categories(update, context:CustomCallbackContext):
         )
 
 
-def handle_category(update, context: CustomCallbackContext):
+def handle_category(update, context: CallbackContext):
     user_id = extract_user_data_from_update(update)['user_id']
     category_id = int(update.callback_query.data.replace(static_text.category_view_button_data, ''))
     receipts = Receipt.objects.filter(category_id=category_id)
