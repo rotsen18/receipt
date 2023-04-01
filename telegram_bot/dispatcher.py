@@ -74,6 +74,12 @@ def setup_dispatcher(dp):
             pattern=rf'{receipt_static_text.category_view_button_data}\d+'
         )
     )
+    dp.add_handler(
+        MessageHandler(
+            Filters.text(receipt_static_text.receipt_create_button_name),
+            receipts_handlers.add_receipt
+        )
+    )
 
     return dp
 

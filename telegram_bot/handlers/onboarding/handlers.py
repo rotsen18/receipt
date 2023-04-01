@@ -14,11 +14,11 @@ def command_start(update: Update, context: CallbackContext) -> None:
         'username': update.message.from_user.username,
         'telegram_id': user_id,
     }
-    u, created = TelegramUser.objects.get_or_create(telegram_id=user_id, defaults=user_data)
+    user, created = TelegramUser.objects.get_or_create(telegram_id=user_id, defaults=user_data)
 
     if created:
-        text = static_text.start_created.format(first_name=u.first_name)
+        text = static_text.start_created.format(first_name=user.first_name)
     else:
-        text = static_text.start_not_created.format(first_name=u.first_name)
+        text = static_text.start_not_created.format(first_name=user.first_name)
 
-    update.message.reply_text(text=text, reply_markup=keyboards.make_keyboard_for_start_command())
+    update.message.reply_text(text=text, reply_markup=keyboards.make_keyboard_for_start_command(user))
