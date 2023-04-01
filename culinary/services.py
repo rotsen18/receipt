@@ -1,17 +1,20 @@
-from culinary.models import Receipt
+from django.db.models import F, Func
+
+from culinary.models import Receipt, ReceiptComponent
 
 
 class PortionService:
     @staticmethod
-    def new_portions(receipt: Receipt | int, portions: int):
+    def new_portions_rework(receipt: Receipt | int, portions: int):
         if isinstance(receipt, int):
             receipt = Receipt.objects.get(id=receipt)
-        result = []
-        for component in receipt.components.all():
-            recalculated_data = {
-                'name': component.ingredient.name,
-                'measurement_unit': component.measurement_unit.name,
-                'amount': round((component.amount * portions) / receipt.receipt_portions, 1)
-            }
-            result.append(recalculated_data)
-        return result
+        qs = ReceiptComponent.objects.filter(receipt=receipt).select_related('ingredient', 'measurement_unit').annotate(
+            ingr_name=F('ingredient__name'),
+            measurement_unit_name=F('measurement_unit__name'),
+            new_amount=Func(
+                (F('amount') * portions) / F('receipt__receipt_portions'),
+                function='ROUND',
+                template='%(function)s(%(expressions)s::numeric, 1)'
+                )
+        ).values('ingr_name', 'measurement_unit_name', 'new_amount')
+        return list(qs)
