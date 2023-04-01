@@ -52,7 +52,7 @@ class ReceiptDetailSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source='category.name', read_only=True)
     devices = serializers.SlugRelatedField(many=True, slug_field='name', read_only=True)
     main_cooking_principe = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    author = serializers.SlugRelatedField(slug_field='first_name', read_only=True, default='')
+    author = serializers.CharField(source='author__first_name', read_only=True, default='')
 
     class Meta:
         model = Receipt
