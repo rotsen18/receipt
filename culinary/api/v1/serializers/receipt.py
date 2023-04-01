@@ -66,4 +66,5 @@ class ReceiptDetailSerializer(serializers.ModelSerializer):
         )
 
     def get_estimate_time(self, obj):
-        return humanize.naturaldelta(obj.estimate_time)
+        _t = humanize.i18n.activate('uk_UA')
+        return '' or humanize.naturaldelta(obj.estimate_time)
