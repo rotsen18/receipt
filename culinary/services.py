@@ -5,7 +5,7 @@ from culinary.models import Receipt, ReceiptComponent
 
 class PortionService:
     @staticmethod
-    def new_portions_rework(receipt: Receipt | int, portions: int):
+    def new_portions(receipt: Receipt | int, portions: int):
         if isinstance(receipt, int):
             receipt = Receipt.objects.get(id=receipt)
         qs = ReceiptComponent.objects.filter(receipt=receipt).select_related('ingredient', 'measurement_unit').annotate(
