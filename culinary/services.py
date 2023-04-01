@@ -9,7 +9,7 @@ class PortionService:
         if isinstance(receipt, int):
             receipt = Receipt.objects.get(id=receipt)
         qs = ReceiptComponent.objects.filter(receipt=receipt).select_related('ingredient', 'measurement_unit').annotate(
-            ingr_name=F('ingredient__name'),
+            ingredient_name=F('ingredient__name'),
             measurement_unit_name=F('measurement_unit__name'),
             new_amount=Func(
                 (F('amount') * portions) / F('receipt__receipt_portions'),
