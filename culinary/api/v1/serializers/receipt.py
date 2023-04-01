@@ -1,3 +1,5 @@
+import humanize
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -8,7 +10,8 @@ class ReceiptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Receipt
         fields = (
-            'name', 'name', 'description', 'main_cooking_principe', 'procedure', 'category', 'components'
+            'name', 'name', 'description', 'main_cooking_principe', 'procedure', 'category', 'components',
+            'estimate_time'
         )
 
 
@@ -52,11 +55,16 @@ class ReceiptDetailSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source='category.name', read_only=True)
     devices = serializers.SlugRelatedField(many=True, slug_field='name', read_only=True)
     main_cooking_principe = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    author = serializers.SlugRelatedField(slug_field='first_name', read_only=True, default='')
+    author = serializers.CharField(source='author__first_name', read_only=True, default='')
+    estimate_time = serializers.SerializerMethodField()
 
     class Meta:
         model = Receipt
         fields = (
             'id', 'name', 'created_at', 'modified_at', 'author', 'description', 'main_cooking_principe', 'procedure',
-            'devices', 'category', 'raking', 'comments', 'components', 'source_link'
+            'devices', 'category', 'raking', 'comments', 'components', 'source_link', 'estimate_time'
         )
+
+    def get_estimate_time(self, obj):
+        _t = humanize.i18n.activate('uk_UA')
+        return '' or humanize.naturaldelta(obj.estimate_time)

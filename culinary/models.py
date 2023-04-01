@@ -14,6 +14,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     category = models.ForeignKey('directory.CulinaryCategory', on_delete=models.PROTECT, null=True, blank=True)
     source_link = models.URLField(null=True)
     receipt_portions = models.IntegerField(validators=[MinValueValidator(limit_value=1)])
+    estimate_time = models.DurationField(null=True)
 
     class Meta:
         verbose_name = 'Рецепт'
