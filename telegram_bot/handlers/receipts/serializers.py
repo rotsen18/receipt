@@ -23,4 +23,4 @@ class BotCulinaryCategorySerializer(CulinaryCategorySerializer):
 
     class Meta:
         model = CulinaryCategory
-        fields = ('name', 'id', 'description', 'receipt_count')
+        fields = ('name', 'id', 'receipt_count')
