@@ -1,5 +1,4 @@
 import humanize
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -57,12 +56,14 @@ class ReceiptDetailSerializer(serializers.ModelSerializer):
     main_cooking_principe = serializers.SlugRelatedField(slug_field='name', read_only=True)
     author = serializers.CharField(source='author__first_name', read_only=True, default='')
     estimate_time = serializers.SerializerMethodField()
+    created_at_date = serializers.DateTimeField(source='created_at', read_only=True, format='%d %b %Y')
 
     class Meta:
         model = Receipt
         fields = (
             'id', 'name', 'created_at', 'modified_at', 'author', 'description', 'main_cooking_principe', 'procedure',
-            'devices', 'category', 'raking', 'comments', 'components', 'source_link', 'estimate_time'
+            'devices', 'category', 'raking', 'comments', 'components', 'source_link', 'estimate_time',
+            'created_at_date'
         )
 
     def get_estimate_time(self, obj):
