@@ -6,4 +6,5 @@ python3 -m pip install --upgrade pip
 pip3 install -r requirements.txt
 
 python3 manage.py collectstatic --no-input
+python3 django-admin compilemessages
 python3 manage.py migrate
