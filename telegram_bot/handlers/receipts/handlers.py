@@ -1,9 +1,9 @@
+from django.conf import settings
 from django.db.models import Count
 from django.urls import reverse
-from django.conf import settings
 from telegram import ParseMode, Update
 from telegram.ext import (
-    ConversationHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
+    ConversationHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext,
 )
 
 from culinary.api.v1.serializers.receipt import ReceiptListSerializer, ReceiptDetailSerializer
@@ -11,10 +11,9 @@ from culinary.models import Receipt, ReceiptComment, ReceiptImage
 from culinary.services import PortionService
 from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
-from telegram_bot.handlers.receipts import static_text
+from telegram_bot.handlers.receipts import static_text, keyboards
 from telegram_bot.handlers.receipts.serializers import BotReceiptCommentSerializer, BotCulinaryCategorySerializer
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
-from telegram_bot.handlers.receipts import keyboards
 
 UPLOAD_PHOTO = range(1)
 RECALCULATE_PORTIONS = range(1)
@@ -45,8 +44,10 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
     receipt_id = int(update.callback_query.data.replace(static_text.receipt_view_button_data, ''))
     receipt = Receipt.objects.get(id=receipt_id)
     serializer = ReceiptDetailSerializer(receipt)
+    data = serializer.data
+    data['devices'] = ', '.join(data.get('devices'))
     messages = [
-        {'text': static_text.receipt_detail_title.format(**serializer.data)},
+        {'text': static_text.receipt_detail_title.format(**data)},
         {'text': '\n'.join([f'{num}. {value}' for num, value in enumerate(serializer.data.get('components'), 1)])},
         {
             'text': serializer.data.get('procedure'),
@@ -196,7 +197,7 @@ def handle_category(update, context: CallbackContext):
     receipts = Receipt.objects.filter(category_id=category_id)
     serializer = ReceiptListSerializer(instance=receipts, many=True)
     for data in serializer.data:
-        text = static_text.receipt_short_text.format(**data)
+        text = static_text.receipt_short_text_with_description.format(**data)
         keyboard = keyboards.make_keyboard_for_receipt(
             user=context.user,
             receipt_id=data.get('id'),
