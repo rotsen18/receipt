@@ -1,8 +1,6 @@
 from django.contrib import admin
 
-from directory.models import (
-    MeasurementUnit, Ingredient, CulinaryCategory, Device, CookingType,
-)
+from directory.models import CookingType, CulinaryCategory, Device, Ingredient, MeasurementUnit
 
 
 @admin.register(MeasurementUnit)

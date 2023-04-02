@@ -1,4 +1,4 @@
-from telegram import ReplyKeyboardMarkup, KeyboardButton
+from telegram import KeyboardButton, ReplyKeyboardMarkup
 
 from telegram_bot.handlers.receipts import static_text
 from telegram_bot.models import TelegramUser

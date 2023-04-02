@@ -2,17 +2,15 @@ from django.conf import settings
 from django.db.models import Count
 from django.urls import reverse
 from telegram import ParseMode, Update
-from telegram.ext import (
-    ConversationHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext,
-)
+from telegram.ext import CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 
-from culinary.api.v1.serializers.receipt import ReceiptListSerializer, ReceiptDetailSerializer
+from culinary.api.v1.serializers.receipt import ReceiptDetailSerializer, ReceiptListSerializer
 from culinary.models import Receipt, ReceiptComment, ReceiptImage
 from culinary.services import PortionService
 from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
-from telegram_bot.handlers.receipts import static_text, keyboards
-from telegram_bot.handlers.receipts.serializers import BotReceiptCommentSerializer, BotCulinaryCategorySerializer
+from telegram_bot.handlers.receipts import keyboards, static_text
+from telegram_bot.handlers.receipts.serializers import BotCulinaryCategorySerializer, BotReceiptCommentSerializer
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
 
 UPLOAD_PHOTO = range(1)
@@ -29,13 +27,13 @@ def receipts(update: Update, context: CallbackContext) -> None:
             user=context.user,
             receipt_id=data.get('id'),
             category_name=data.get('category_name'),
-            category_id=data.get('category_id')
+            category_id=data.get('category_id'),
         )
         context.bot.send_message(
             user_id,
             text,
             reply_markup=keyboard,
-            parse_mode=ParseMode.HTML
+            parse_mode=ParseMode.HTML,
         )
 
 
@@ -54,8 +52,8 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
             'reply_markup': keyboards.make_keyboard_for_detail_receipt(
                 user=context.user,
                 receipt_id=receipt_id,
-                comments_amount=receipt.comments.count()
-            )
+                comments_amount=receipt.comments.count(),
+            ),
         },
     ]
     for image in receipt.photos.all():
@@ -88,7 +86,7 @@ def view_comments(update: Update, context: CallbackContext):
         context.bot.send_message(
             user_id,
             parse_mode=ParseMode.HTML,
-            text=static_text.comment_view.format(**comment)
+            text=static_text.comment_view.format(**comment),
         )
 
 
@@ -99,7 +97,7 @@ def add_comment(update: Update, context: CallbackContext):
 
 def handle_upload_photo(update, context):
     receipt_id = int(update.callback_query.data.replace(static_text.receipt_photo_create_button_data, ''))
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Please upload a photo for your receipt.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text='Please upload a photo for your receipt.')
     context.user_data['upload_photo'] = True
     context.chat_data['receipt_id'] = receipt_id
     return UPLOAD_PHOTO
@@ -114,17 +112,17 @@ def handle_photo(update, context: CallbackContext):
         file_size=update.message.photo[-1].file_size,
         file_unique_id=update.message.photo[-1].file_unique_id,
         height=update.message.photo[-1].height,
-        width=update.message.photo[-1].width
+        width=update.message.photo[-1].width,
     )
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text="The photo has been uploaded.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text='The photo has been uploaded.')
     context.user_data.clear()
     return ConversationHandler.END
 
 
 upload_photo_conversation_handler = ConversationHandler(
     entry_points=[
-        CallbackQueryHandler(handle_upload_photo, pattern=rf'{static_text.receipt_photo_create_button_data}\d+')
+        CallbackQueryHandler(handle_upload_photo, pattern=rf'{static_text.receipt_photo_create_button_data}\d+'),
     ],
     states={
         UPLOAD_PHOTO: [MessageHandler(Filters.photo, handle_photo)],
@@ -148,7 +146,7 @@ def handle_recalculating(update, context: CallbackContext):
     new_data = PortionService.new_portions(receipt=receipt, portions=portions)
     title = static_text.recalculate_result_title.format(
         previous_portions=receipt.receipt_portions,
-        new_portions=portions
+        new_portions=portions,
     )
 
     answer = [title]
@@ -166,13 +164,13 @@ new_portions_conversation_handler = ConversationHandler(
     entry_points=[
         CallbackQueryHandler(
             handle_insert_portions,
-            pattern=rf'{static_text.receipt_recalculate_portions_button_data}\d+'
-        )
+            pattern=rf'{static_text.receipt_recalculate_portions_button_data}\d+',
+        ),
     ],
     states={
         RECALCULATE_PORTIONS: [
-            MessageHandler(Filters.text, handle_recalculating)
-        ]
+            MessageHandler(Filters.text, handle_recalculating),
+        ],
     },
     fallbacks=[],
 )
@@ -187,7 +185,7 @@ def handle_all_categories(update, context: CallbackContext):
         chat_id=update.effective_chat.id,
         text=text,
         reply_markup=keyboard,
-        parse_mode=ParseMode.HTML
+        parse_mode=ParseMode.HTML,
     )
 
 
@@ -202,11 +200,11 @@ def handle_category(update, context: CallbackContext):
             user=context.user,
             receipt_id=data.get('id'),
             category_name=data.get('category_name'),
-            category_id=data.get('category_id')
+            category_id=data.get('category_id'),
         )
         context.bot.send_message(
             user_id,
             text,
             reply_markup=keyboard,
-            parse_mode=ParseMode.HTML
+            parse_mode=ParseMode.HTML,
         )

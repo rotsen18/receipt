@@ -1,7 +1,7 @@
 from rest_framework import routers
 
 from directory.api.v1.views.device import DeviceViewSet
-from directory.api.v1.views.food import IngredientViewSet, CookingTypeViewSet, CulinaryCategoryViewSet
+from directory.api.v1.views.food import CookingTypeViewSet, CulinaryCategoryViewSet, IngredientViewSet
 
 router = routers.SimpleRouter()
 router.register(r'device', DeviceViewSet, basename='device')

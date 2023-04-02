@@ -1,14 +1,16 @@
-import django
 import os
+
+import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'receipt.settings')
 django.setup()
 
-from telegram import Bot, BotCommand
-from telegram.ext import Updater
+from telegram import Bot, BotCommand  # noqa E402
+from telegram.ext import Updater  # noqa E402
 
-from receipt.settings import TELEGRAM_BOT_TOKEN, DEBUG
-from telegram_bot.dispatcher import setup_dispatcher, context_types
+from receipt.settings import DEBUG, TELEGRAM_BOT_TOKEN  # noqa E402
+from telegram_bot.dispatcher import context_types  # noqa E402
+from telegram_bot.dispatcher import setup_dispatcher  # noqa E402
 
 
 def run_polling(tg_token: str = TELEGRAM_BOT_TOKEN):
@@ -32,11 +34,11 @@ def run_polling(tg_token: str = TELEGRAM_BOT_TOKEN):
     bot.set_my_commands(
         commands=[
             BotCommand('start', 'Start bot 🚀'), BotCommand('receipts', 'Show all receipts 📊'),
-        ]
+        ],
     )
     updater.start_polling()
     updater.idle()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run_polling()

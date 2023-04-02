@@ -1,6 +1,6 @@
 from rest_framework_nested import routers
 
-from culinary.api.v1.views.receipt import ReceiptViewSet, ReceiptComponentViewSet, ReceiptCommentViewSet
+from culinary.api.v1.views.receipt import ReceiptCommentViewSet, ReceiptComponentViewSet, ReceiptViewSet
 
 router = routers.SimpleRouter()
 router.register(r'receipt', ReceiptViewSet, basename='receipt')

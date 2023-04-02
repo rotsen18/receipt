@@ -1,10 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from culinary.models import (
-    Receipt, ReceiptComponent, ReceiptComment,
-
-)
+from culinary.models import Receipt, ReceiptComment, ReceiptComponent
 
 
 class ReceiptForm(forms.ModelForm):

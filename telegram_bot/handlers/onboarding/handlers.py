@@ -1,9 +1,8 @@
 from telegram import Update
 from telegram.ext import CallbackContext
 
-from telegram_bot.handlers.onboarding import static_text
+from telegram_bot.handlers.onboarding import keyboards, static_text
 from telegram_bot.models import TelegramUser
-from telegram_bot.handlers.onboarding import keyboards
 
 
 def command_start(update: Update, context: CallbackContext) -> None:

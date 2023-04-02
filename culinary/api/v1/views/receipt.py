@@ -1,7 +1,7 @@
-from rest_framework import viewsets, mixins
+from rest_framework import mixins, viewsets
 
-from culinary.models import Receipt, ReceiptComponent, ReceiptComment
 from culinary.api.v1.serializers import receipt as serializers
+from culinary.models import Receipt, ReceiptComment, ReceiptComponent
 
 
 class ReceiptViewSet(viewsets.ModelViewSet):

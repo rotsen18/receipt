@@ -1,19 +1,18 @@
+import html
 import logging
 import traceback
-import html
 
 import telegram
+from dtb.settings import TELEGRAM_LOGS_CHAT_ID
 from telegram import Update
 from telegram.ext import CallbackContext
-
-from dtb.settings import TELEGRAM_LOGS_CHAT_ID
 from users.models import User
 
 
 def send_stacktrace_to_tg_chat(update: Update, context: CallbackContext) -> None:
     u = User.get_user(update, context)
 
-    logging.error("Exception while handling an update:", exc_info=context.error)
+    logging.error('Exception while handling an update:', exc_info=context.error)
 
     tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
     tb_string = ''.join(tb_list)
@@ -36,7 +35,7 @@ Return to /start
         text=user_message,
     )
 
-    admin_message = f"⚠️⚠️⚠️ for {u.tg_str}:\n{message}"[:4090]
+    admin_message = f'⚠️⚠️⚠️ for {u.tg_str}:\n{message}'[:4090]
     if TELEGRAM_LOGS_CHAT_ID:
         context.bot.send_message(
             chat_id=TELEGRAM_LOGS_CHAT_ID,
