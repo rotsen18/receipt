@@ -10,10 +10,6 @@ class ComponentsInline(admin.TabularInline):
     model = ReceiptComponent
 
 
-class CommentsInline(admin.TabularInline):
-    model = ReceiptComment
-
-
 @admin.register(Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
     inlines = [ComponentsInline]
@@ -21,4 +17,9 @@ class ReceiptAdmin(admin.ModelAdmin):
 
 @admin.register(ReceiptComponent)
 class ReceiptComponent(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ReceiptComment)
+class ReceiptComment(admin.ModelAdmin):
     pass
