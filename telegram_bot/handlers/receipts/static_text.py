@@ -13,8 +13,6 @@ receipt_recalculate_portions_button_data = 'receipt_recalculate_receipt_id='
 recalculate_portion_question = 'На скільки порцій перерахувати рецепт?'
 recalculate_result_title = 'Базовий рецепт був розрахований на {previous_portions} порцій\nНа {new_portions} порцій рецепт буде виглядати так:'
 
-
-
 category_from_receipt_button_name = 'Всі рецепти з {category_name}'
 categories_list_view_name = 'Категорії'
 category__list_view_result_text = 'Список категорій'
