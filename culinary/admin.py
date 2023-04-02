@@ -26,8 +26,8 @@ class ComponentsInline(admin.TabularInline):
 
 @admin.register(Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
-    form = ReceiptForm
     inlines = [ComponentsInline]
+    exclude = ('author',)
 
 
 @admin.register(ReceiptComponent)
