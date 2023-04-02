@@ -1,5 +1,3 @@
-from urllib.parse import urljoin
-
 from django.db.models import Count
 from django.urls import reverse
 from django.conf import settings
