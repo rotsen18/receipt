@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Dict, Callable
+from typing import Callable, Dict
 
 import telegram
 from telegram import Update
@@ -12,7 +12,8 @@ def send_typing_action(func: Callable):
     @wraps(func)
     def command_func(update, context, *args, **kwargs):
         bot.send_chat_action(
-            chat_id=update.effective_message.chat_id, action=telegram.ChatAction.TYPING)
+            chat_id=update.effective_message.chat_id, action=telegram.ChatAction.TYPING,
+        )
         return func(update, context, *args, **kwargs)
 
     return command_func
@@ -23,11 +24,11 @@ def extract_user_data_from_update(update: Update) -> Dict:
     user = update.effective_user.to_dict()
 
     return dict(
-        user_id=user["id"],
+        user_id=user['id'],
         is_blocked_bot=False,
         **{
             k: user[k]
-            for k in ["username", "first_name", "last_name", "language_code"]
+            for k in ['username', 'first_name', 'last_name', 'language_code']
             if k in user and user[k] is not None
         },
     )

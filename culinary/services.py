@@ -15,6 +15,6 @@ class PortionService:
                 (F('amount') * portions) / F('receipt__receipt_portions'),
                 function='ROUND',
                 template='%(function)s(%(expressions)s::numeric, 1)'
-                )
+            )
         ).values('ingredient_name', 'measurement_unit_name', 'new_amount')
         return list(qs)

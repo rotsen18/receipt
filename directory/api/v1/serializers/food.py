@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from directory.models import Ingredient, CookingType, CulinaryCategory
+from directory.models import CookingType, CulinaryCategory, Ingredient
 
 
 class IngredientSerializer(serializers.ModelSerializer):

@@ -2,7 +2,7 @@ import humanize
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from culinary.models import Receipt, ReceiptComponent, ReceiptComment
+from culinary.models import Receipt, ReceiptComment, ReceiptComponent
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
         model = Receipt
         fields = (
             'name', 'name', 'description', 'main_cooking_principe', 'procedure', 'category', 'components',
-            'estimate_time'
+            'estimate_time',
         )
 
 
@@ -29,7 +29,7 @@ class ReceiptListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Receipt
         fields = (
-            'id', 'name', 'description', 'main_cooking_principe', 'category_name', 'category_id', 'link', 'raking'
+            'id', 'name', 'description', 'main_cooking_principe', 'category_name', 'category_id', 'link', 'raking',
         )
 
 
@@ -63,9 +63,9 @@ class ReceiptDetailSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'created_at', 'modified_at', 'author', 'description', 'main_cooking_principe', 'procedure',
             'devices', 'category', 'raking', 'comments', 'components', 'source_link', 'estimate_time',
-            'created_at_date'
+            'created_at_date',
         )
 
     def get_estimate_time(self, obj):
-        _t = humanize.i18n.activate('uk_UA')
+        humanize.i18n.activate('uk_UA')
         return '' or humanize.naturaldelta(obj.estimate_time)

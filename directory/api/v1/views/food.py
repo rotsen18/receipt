@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
-from directory.models import Ingredient, CookingType, CulinaryCategory
 from directory.api.v1.serializers import food as serializers
+from directory.models import CookingType, CulinaryCategory, Ingredient
 
 
 class IngredientViewSet(viewsets.ModelViewSet):

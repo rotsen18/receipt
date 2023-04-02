@@ -70,7 +70,7 @@ class CulinaryCategory(NameABC):
         on_delete=models.SET_NULL,
         null=True,
         related_name='child_categories'
-        )
+    )
     description = models.CharField(_('Description'), max_length=255, blank=True, default='')
 
     def __str__(self):

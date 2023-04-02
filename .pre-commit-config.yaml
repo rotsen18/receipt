@@ -1,20 +1,16 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: 'v4.4.0'
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
-      - id: check-ast
-      - id: check-docstring-first
-      - id: double-quote-string-fixer
-      - id: requirements-txt-fixer
-  - repo: https://github.com/asottile/add-trailing-comma
-    rev: v2.2.0
-    hooks:
-      - id: add-trailing-comma
-  - repo: https://github.com/pycqa/flake8
-    rev: '4.0.1'
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-xml
+      - id: check-merge-conflict
+  - repo: https://github.com/PyCQA/flake8
+    rev: '6.0.0'
     hooks:
       - id: flake8
         args:
@@ -23,7 +19,7 @@ repos:
                                    flake8-absolute-import, flake8-comprehensions, flake8-commas,
                                    flake8-multiline-containers ]
   - repo: https://github.com/pycqa/isort
-    rev: 5.11.5
+    rev: 5.12.0
     hooks:
       - id: isort
         name: isort (python)

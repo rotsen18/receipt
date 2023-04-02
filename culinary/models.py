@@ -4,7 +4,7 @@ from django.db.models import Avg
 from django.utils.translation import gettext_lazy as _
 from telegram import PhotoSize
 
-from mixins.models import NameABC, DateTimesABC, AuthorABC
+from mixins.models import AuthorABC, DateTimesABC, NameABC
 
 
 class Receipt(NameABC, DateTimesABC, AuthorABC):
@@ -13,7 +13,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
         'directory.CookingType',
         verbose_name=_('main_cooking_principles'),
         on_delete=models.CASCADE,
-        null=True
+        null=True,
     )
     procedure = models.TextField(_('Procedure'), blank=True, default='')
     devices = models.ManyToManyField('directory.Device', verbose_name=_('Devices'))
@@ -22,7 +22,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
         verbose_name=_('Category'),
         on_delete=models.PROTECT,
         null=True,
-        blank=True
+        blank=True,
     )
     source_link = models.URLField(_('Source_link'), null=True)
     receipt_portions = models.IntegerField(_('Receipt_portions'), validators=[MinValueValidator(limit_value=1)])
@@ -33,7 +33,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
         verbose_name_plural = _('Receipts')
         ordering = ['name']
         indexes = [
-            models.Index(fields=['name'])
+            models.Index(fields=['name']),
         ]
 
     def __str__(self):
@@ -52,24 +52,24 @@ class ReceiptComponent(models.Model):
         null=True,
         on_delete=models.CASCADE,
         related_name='receipts_components',
-        verbose_name=_('Measurement_unit')
+        verbose_name=_('Measurement_unit'),
     )
     amount = models.FloatField(_('Amount'))
-
-    def __str__(self):
-        return f'{self.ingredient} - {self.amount} {self.measurement_unit}'
-
-    def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
-        if self.measurement_unit is None:
-            self.user_measurement_unit = self.ingredient.default_measurement_unit
-        super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
         verbose_name = _('ReceiptComponent')
         verbose_name_plural = _('ReceiptComponents')
         ordering = ['receipt']
+
+    def __str__(self):
+        return f'{self.ingredient} - {self.amount} {self.measurement_unit}'
+
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None,
+    ):
+        if self.measurement_unit is None:
+            self.user_measurement_unit = self.ingredient.default_measurement_unit
+        super().save(force_insert, force_update, using, update_fields)
 
 
 class ReceiptComment(DateTimesABC, AuthorABC):
@@ -84,15 +84,15 @@ class ReceiptComment(DateTimesABC, AuthorABC):
     rate = models.IntegerField(_('Rate'), choices=RateChoices.choices, default=RateChoices.PERFECT)
     text = models.CharField(_('Text'), max_length=300, default='')
 
-    def __str__(self):
-        max_comment_length = 15
-        text = f'{self.text[:max_comment_length]}...' if len(self.text) >= max_comment_length else self.text
-        return f'{self.receipt}:{self.rate} {text}'
-
     class Meta:
         verbose_name = _('ReceiptComment')
         verbose_name_plural = _('ReceiptComments')
         ordering = ['-created_at']
+
+    def __str__(self):
+        max_comment_length = 15
+        text = f'{self.text[:max_comment_length]}...' if len(self.text) >= max_comment_length else self.text
+        return f'{self.receipt}:{self.rate} {text}'
 
 
 class ReceiptImage(DateTimesABC):
