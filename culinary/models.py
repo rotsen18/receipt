@@ -1,24 +1,36 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Avg
+from django.utils.translation import gettext_lazy as _
 from telegram import PhotoSize
 
 from mixins.models import NameABC, DateTimesABC, AuthorABC
 
 
 class Receipt(NameABC, DateTimesABC, AuthorABC):
-    description = models.TextField()
-    main_cooking_principe = models.ForeignKey('directory.CookingType', on_delete=models.CASCADE, null=True)
-    procedure = models.TextField(blank=True, default='')
-    devices = models.ManyToManyField('directory.Device')
-    category = models.ForeignKey('directory.CulinaryCategory', on_delete=models.PROTECT, null=True, blank=True)
-    source_link = models.URLField(null=True)
-    receipt_portions = models.IntegerField(validators=[MinValueValidator(limit_value=1)])
-    estimate_time = models.DurationField(null=True)
+    description = models.TextField(_('Description'))
+    main_cooking_principe = models.ForeignKey(
+        'directory.CookingType',
+        verbose_name=_('main_cooking_principles'),
+        on_delete=models.CASCADE,
+        null=True
+    )
+    procedure = models.TextField(_('Procedure'), blank=True, default='')
+    devices = models.ManyToManyField('directory.Device', verbose_name=_('Devices'))
+    category = models.ForeignKey(
+        'directory.CulinaryCategory',
+        verbose_name=_('Category'),
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
+    )
+    source_link = models.URLField(_('Source_link'), null=True)
+    receipt_portions = models.IntegerField(_('Receipt_portions'), validators=[MinValueValidator(limit_value=1)])
+    estimate_time = models.DurationField(_('Estimate_time'), null=True)
 
     class Meta:
-        verbose_name = 'Рецепт'
-        verbose_name_plural = 'Рецепи'
+        verbose_name = _('Receipt')
+        verbose_name_plural = _('Receipts')
         ordering = ['name']
         indexes = [
             models.Index(fields=['name'])
@@ -33,15 +45,16 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
 
 
 class ReceiptComponent(models.Model):
-    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='components')
-    ingredient = models.ForeignKey('directory.Ingredient', on_delete=models.CASCADE)
+    receipt = models.ForeignKey(Receipt, verbose_name=_('Receipt'), on_delete=models.CASCADE, related_name='components')
+    ingredient = models.ForeignKey('directory.Ingredient', verbose_name=_('Ingredient'), on_delete=models.CASCADE)
     measurement_unit = models.ForeignKey(
         'directory.MeasurementUnit',
         null=True,
         on_delete=models.CASCADE,
-        related_name='receipts_components'
+        related_name='receipts_components',
+        verbose_name=_('Measurement_unit')
     )
-    amount = models.FloatField()
+    amount = models.FloatField(_('Amount'))
 
     def __str__(self):
         return f'{self.ingredient} - {self.amount} {self.measurement_unit}'
@@ -54,8 +67,8 @@ class ReceiptComponent(models.Model):
         super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
-        verbose_name = 'Складник рецепту'
-        verbose_name_plural = 'Складники рецепту'
+        verbose_name = _('ReceiptComponent')
+        verbose_name_plural = _('ReceiptComponents')
         ordering = ['receipt']
 
 
@@ -67,9 +80,9 @@ class ReceiptComment(DateTimesABC, AuthorABC):
         GOOD = (4, 'good')
         PERFECT = (5, 'perfect')
 
-    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='comments')
-    rate = models.IntegerField(choices=RateChoices.choices, default=RateChoices.PERFECT)
-    text = models.CharField(max_length=300, default='')
+    receipt = models.ForeignKey(Receipt, verbose_name=_('Receipt'), on_delete=models.CASCADE, related_name='comments')
+    rate = models.IntegerField(_('Rate'), choices=RateChoices.choices, default=RateChoices.PERFECT)
+    text = models.CharField(_('Text'), max_length=300, default='')
 
     def __str__(self):
         max_comment_length = 15
@@ -77,13 +90,13 @@ class ReceiptComment(DateTimesABC, AuthorABC):
         return f'{self.receipt}:{self.rate} {text}'
 
     class Meta:
-        verbose_name = 'Оцінка рецепту'
-        verbose_name_plural = 'Оцінки рецепту'
+        verbose_name = _('ReceiptComment')
+        verbose_name_plural = _('ReceiptComments')
         ordering = ['-created_at']
 
 
 class ReceiptImage(DateTimesABC):
-    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='photos')
+    receipt = models.ForeignKey(Receipt, verbose_name=_('Receipt'), on_delete=models.CASCADE, related_name='photos')
     file_id = models.CharField(max_length=200)
     file_unique_id = models.CharField(max_length=20)
     file_size = models.IntegerField(null=True)
@@ -91,8 +104,8 @@ class ReceiptImage(DateTimesABC):
     height = models.IntegerField()
 
     class Meta:
-        verbose_name = 'Фото'
-        verbose_name_plural = 'Фото'
+        verbose_name = _('ReceiptImage')
+        verbose_name_plural = _('ReceiptImages')
 
     @property
     def photosize(self):
