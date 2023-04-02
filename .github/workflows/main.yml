@@ -1,20 +1,12 @@
-name: Pre-commit Check
+name: pre-commit
 on:
   pull_request:
-    branches: [ stg, main ]
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
+    - uses: actions/checkout@v2
     - name: Install pre-commit
-      run: |
-        python -m pip install pre-commit
-        pre-commit install
-    - name: Run pre-commit checks
+      run: pip install pre-commit
+    - name: Run pre-commit
       run: pre-commit run --all-files
