@@ -17,8 +17,8 @@ recalculate_result_title = 'Базовий рецепт був розрахов�
 
 category_from_receipt_button_name = 'Всі рецепти з {category_name}'
 categories_list_view_name = 'Категорії'
-category_description = '<b>{name}</b>\nв категорії {receipt_count} рецептів\n{description}'
-category_view_button_name = 'Подивитися всі рецепти'
+category__list_view_result_text = 'Список категорій'
+category_view_button_name = '{name}: {receipt_count}шт'
 category_view_button_data = 'category_id='
 
 comments_list_button_name = '🗒Коментарі'

@@ -60,13 +60,17 @@ def make_keyboard_for_detail_receipt(
     return InlineKeyboardMarkup(buttons)
 
 
-def make_keyboard_for_category(category_id: int) -> InlineKeyboardMarkup:
-    category_button = InlineKeyboardButton(
-        static_text.category_view_button_name,
-        callback_data=f'{static_text.category_view_button_data}{category_id}'
-    )
-
-    buttons = [
-        [category_button],
-    ]
+def make_keyboard_for_category(categories: list) -> InlineKeyboardMarkup:
+    buttons = [[]]
+    for category in categories:
+        category_id = category.get('id')
+        button_name = static_text.category_view_button_name.format(
+            name=category.get('name'),
+            receipt_count=category.get('receipt_count')
+        )
+        category_button = InlineKeyboardButton(
+            button_name,
+            callback_data=f'{static_text.category_view_button_data}{category_id}'
+        )
+        buttons[0].append(category_button)
     return InlineKeyboardMarkup(buttons)

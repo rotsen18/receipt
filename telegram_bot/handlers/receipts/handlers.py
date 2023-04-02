@@ -179,25 +179,17 @@ new_portions_conversation_handler = ConversationHandler(
 )
 
 
-def handle_all_categories(update, context:CallbackContext):
+def handle_all_categories(update, context: CallbackContext):
     categories = CulinaryCategory.objects.annotate(receipt_count=Count('receipt'))
     serializer = BotCulinaryCategorySerializer(instance=categories, many=True)
-
-    for category in serializer.data:
-        text = static_text.category_description.format(
-            name=category.get('name'),
-            receipt_count=category.get('receipt_count'),
-            description=category.get('description'),
-        )
-        keyboard = None
-        if category.get('receipt_count'):
-            keyboard = keyboards.make_keyboard_for_category(category_id=category.get('id'))
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=text,
-            reply_markup=keyboard,
-            parse_mode=ParseMode.HTML
-        )
+    text = static_text.category__list_view_result_text
+    keyboard = keyboards.make_keyboard_for_category(serializer.data)
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=text,
+        reply_markup=keyboard,
+        parse_mode=ParseMode.HTML
+    )
 
 
 def handle_category(update, context: CallbackContext):
