@@ -208,3 +208,7 @@ def handle_category(update, context: CallbackContext):
             reply_markup=keyboard,
             parse_mode=ParseMode.HTML,
         )
+
+
+def unknown_command(update: Update, context: CallbackContext):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.unknown_command)
