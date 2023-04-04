@@ -19,7 +19,8 @@ repos:
                                    flake8-absolute-import, flake8-comprehensions, flake8-commas,
                                    flake8-multiline-containers ]
   - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.11.5
     hooks:
       - id: isort
         name: isort (python)
+        args: [ '--settings-file', '.isort.cfg' ]
