@@ -79,6 +79,9 @@ def setup_dispatcher(dp):
             receipts_handlers.add_receipt
         )
     )
+    dp.add_handler(
+        MessageHandler(Filters.text, receipts_handlers.unknown_command)
+    )
 
     return dp
 
