@@ -1,0 +1,70 @@
+name: Version Bump
+on:
+  workflow_dispatch:
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Get Latest Tag
+        id: get_latest_tag
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: 'v*.*.*'
+          prereleases: false
+          latest: true
+          sort: semver-desc
+
+      - name: Determine Release Type
+        id: determine_release_type
+        run: |
+          version=${{ steps.get_latest_tag.outputs.tag_name }}
+          major=`echo $version | cut -d '.' -f 1 | sed 's/v//g'`
+          minor=`echo $version | cut -d '.' -f 2`
+          patch=`echo $version | cut -d '.' -f 3`
+          echo "::set-output name=release_type::${{ inputs.release_type }}"
+          echo "::set-output name=major_version::${major}"
+          echo "::set-output name=minor_version::${minor}"
+          echo "::set-output name=patch_version::${patch}"
+
+      - name: Increment Version
+        id: increment_version
+        run: |
+          release_type=${{ steps.determine_release_type.outputs.release_type }}
+          major=${{ steps.determine_release_type.outputs.major_version }}
+          minor=${{ steps.determine_release_type.outputs.minor_version }}
+          patch=${{ steps.determine_release_type.outputs.patch_version }}
+
+          case $release_type in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+
+          echo "::set-output name=new_tag::v${major}.${minor}.${patch}"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.increment_version.outputs.new_tag }}
+          release_name: Release ${{ steps.increment_version.outputs.new_tag }}
+          body: |
+            ### Changes
+            - Bump version to ${{ steps.increment_version.outputs.new_tag }}
+          draft: false
+          prerelease: false
