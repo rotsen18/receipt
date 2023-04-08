@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from culinary.models import ReceiptComment
+from culinary.models import ReceiptComment, ReceiptSource
 from directory.api.v1.serializers.food import CulinaryCategorySerializer
 from directory.models import CulinaryCategory
 
@@ -24,3 +24,11 @@ class BotCulinaryCategorySerializer(CulinaryCategorySerializer):
     class Meta:
         model = CulinaryCategory
         fields = ('name', 'id', 'receipt_count')
+
+
+class ReceiptSourceSerializer(serializers.ModelSerializer):
+    date = serializers.DateTimeField(source='created_at', read_only=True, format='%d %b %Y')
+
+    class Meta:
+        model = ReceiptSource
+        fields = ('source', 'receipt', 'date')
