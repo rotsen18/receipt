@@ -1,14 +1,13 @@
-"""
-    Telegram event handlers
-"""
 from telegram import Update
 from telegram.ext import (
     CallbackContext, CallbackQueryHandler, CommandHandler, ContextTypes, Dispatcher, Filters, MessageHandler, Updater,
 )
 
 from receipt.settings import DEBUG
-from telegram_bot.handlers.onboarding import handlers as onboarding_handlers, static_text as onboarding_static_text
-from telegram_bot.handlers.receipts import handlers as receipts_handlers, static_text as receipt_static_text
+from telegram_bot.handlers.onboarding import handlers as onboarding_handlers
+from telegram_bot.handlers.onboarding import static_text as onboarding_static_text
+from telegram_bot.handlers.receipts import handlers as receipts_handlers
+from telegram_bot.handlers.receipts import static_text as receipt_static_text
 from telegram_bot.main import bot
 from telegram_bot.models import TelegramUser
 
@@ -80,6 +79,12 @@ def setup_dispatcher(dp):
             Filters.regex(receipt_static_text.receipt_source_create_button_name),
             receipts_handlers.handle_insert_source,
         ),
+    )
+    dp.add_handler(
+        MessageHandler(
+            Filters.text(receipt_static_text.receipt_source_list_button_name),
+            receipts_handlers.handle_sources
+        )
     )
     dp.add_handler(
         MessageHandler(Filters.text, receipts_handlers.unknown_command)
