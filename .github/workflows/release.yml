@@ -20,10 +20,5 @@ jobs:
       with:
         tag_name: ${{ github.event.pull_request.head.ref }}
         release_name: Release ${{ github.event.pull_request.head.ref }}
-        body: |
-          ### Changes
-          
-          - Added feature A
-          - Fixed issue B
         draft: false
         prerelease: false
