@@ -10,7 +10,9 @@ from culinary.services import PortionService
 from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
 from telegram_bot.handlers.receipts import keyboards, static_text
-from telegram_bot.handlers.receipts.serializers import BotCulinaryCategorySerializer, BotReceiptCommentSerializer
+from telegram_bot.handlers.receipts.serializers import (
+    BotCulinaryCategorySerializer, BotReceiptCommentSerializer, ReceiptSourceSerializer,
+)
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
 
 UPLOAD_PHOTO = range(1)
@@ -216,7 +218,7 @@ def unknown_command(update: Update, context: CallbackContext):
 
 
 def handle_insert_source(update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.receipt_source_text)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.receipt_source_question_text)
     return STORE_SOURCE
 
 
@@ -240,3 +242,11 @@ new_receipt_source_conversation_handler = ConversationHandler(
     },
     fallbacks=[],
 )
+
+
+def handle_sources(update, context: CallbackContext):
+    sources = ReceiptSource.objects.all()
+    serializer = ReceiptSourceSerializer(instance=sources, many=True)
+    for source in serializer.data:
+        text = static_text.receipt_source_item_text.format(**source)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode=ParseMode.HTML)
