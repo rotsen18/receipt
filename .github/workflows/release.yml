@@ -13,10 +13,7 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          pattern: 'v*.*.*'
-          prereleases: false
-          latest: true
-          sort: semver-desc
+          automatic_release_tag: true
 
       - name: Determine Release Type
         id: determine_release_type
