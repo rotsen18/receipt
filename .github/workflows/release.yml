@@ -1,0 +1,24 @@
+name: Create Release on Merge to Master
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+    - uses: actions/checkout@v2
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.pull_request.head.ref }}
+        release_name: Release ${{ github.event.pull_request.head.ref }}
+        draft: false
+        prerelease: false
