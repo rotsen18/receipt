@@ -115,3 +115,18 @@ class ReceiptImage(DateTimesABC):
     def image_url(self):
         file = self.photosize.get_file()
         return file.file_path
+
+
+class ReceiptSource(NameABC):
+    receipt = models.ForeignKey(
+        Receipt,
+        verbose_name=_('Receipt'),
+        on_delete=models.CASCADE,
+        related_name='sources',
+        null=True
+    )
+    source = models.TextField(verbose_name=_('Source'), default='')
+
+    class Meta:
+        verbose_name = _('ReceiptSource')
+        verbose_name_plural = _('ReceiptSources')
