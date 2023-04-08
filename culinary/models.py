@@ -117,7 +117,7 @@ class ReceiptImage(DateTimesABC):
         return file.file_path
 
 
-class ReceiptSource(NameABC):
+class ReceiptSource(NameABC, DateTimesABC):
     receipt = models.ForeignKey(
         Receipt,
         verbose_name=_('Receipt'),
