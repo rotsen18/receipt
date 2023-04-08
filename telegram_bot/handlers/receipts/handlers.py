@@ -5,7 +5,7 @@ from telegram import ParseMode, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 
 from culinary.api.v1.serializers.receipt import ReceiptDetailSerializer, ReceiptListSerializer
-from culinary.models import Receipt, ReceiptComment, ReceiptImage
+from culinary.models import Receipt, ReceiptComment, ReceiptImage, ReceiptSource
 from culinary.services import PortionService
 from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
@@ -15,6 +15,7 @@ from telegram_bot.handlers.utils.info import extract_user_data_from_update
 
 UPLOAD_PHOTO = range(1)
 RECALCULATE_PORTIONS = range(1)
+STORE_SOURCE = range(1)
 
 
 def receipts(update: Update, context: CallbackContext) -> None:
@@ -212,3 +213,30 @@ def handle_category(update, context: CallbackContext):
 
 def unknown_command(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.unknown_command)
+
+
+def handle_insert_source(update, context: CallbackContext):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.receipt_source_text)
+    return STORE_SOURCE
+
+
+def handle_source(update, context: CallbackContext):
+    ReceiptSource.objects.get_or_create(source=update.message.text)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.receipt_source_saved_text)
+    return ConversationHandler.END
+
+
+new_receipt_source_conversation_handler = ConversationHandler(
+    entry_points=[
+        MessageHandler(
+            Filters.regex(static_text.receipt_source_create_button_name),
+            handle_insert_source,
+        ),
+    ],
+    states={
+        STORE_SOURCE: [
+            MessageHandler(Filters.text, handle_source),
+        ],
+    },
+    fallbacks=[],
+)
