@@ -1,6 +1,3 @@
-"""
-    Telegram event handlers
-"""
 from telegram import Update
 from telegram.ext import (
     CallbackContext, CallbackQueryHandler, CommandHandler, ContextTypes, Dispatcher, Filters, MessageHandler, Updater,
@@ -11,9 +8,6 @@ from telegram_bot.handlers.onboarding import handlers as onboarding_handlers
 from telegram_bot.handlers.onboarding import static_text as onboarding_static_text
 from telegram_bot.handlers.receipts import handlers as receipts_handlers
 from telegram_bot.handlers.receipts import static_text as receipt_static_text
-from telegram_bot.handlers.receipts.handlers import (
-    handle_insert_portions, handle_upload_photo, new_portions_conversation_handler, upload_photo_conversation_handler,
-)
 from telegram_bot.main import bot
 from telegram_bot.models import TelegramUser
 
@@ -53,17 +47,17 @@ def setup_dispatcher(dp):
             pattern=rf'{receipt_static_text.comment_create_button_data}\d+'
         )
     )
-    dp.add_handler(upload_photo_conversation_handler)
+    dp.add_handler(receipts_handlers.upload_photo_conversation_handler)
     dp.add_handler(
         CallbackQueryHandler(
-            handle_upload_photo,
+            receipts_handlers.handle_upload_photo,
             pattern=rf'{receipt_static_text.receipt_photo_create_button_data}\d+'
         )
     )
-    dp.add_handler(new_portions_conversation_handler)
+    dp.add_handler(receipts_handlers.new_portions_conversation_handler)
     dp.add_handler(
         CallbackQueryHandler(
-            handle_insert_portions,
+            receipts_handlers.handle_insert_portions,
             pattern=rf'{receipt_static_text.receipt_recalculate_portions_button_data}\d+'
         )
     )
@@ -77,6 +71,19 @@ def setup_dispatcher(dp):
         MessageHandler(
             Filters.text(receipt_static_text.receipt_create_button_name),
             receipts_handlers.add_receipt
+        )
+    )
+    dp.add_handler(receipts_handlers.new_receipt_source_conversation_handler)
+    dp.add_handler(
+        MessageHandler(
+            Filters.regex(receipt_static_text.receipt_source_create_button_name),
+            receipts_handlers.handle_insert_source,
+        ),
+    )
+    dp.add_handler(
+        MessageHandler(
+            Filters.text(receipt_static_text.receipt_source_list_button_name),
+            receipts_handlers.handle_sources
         )
     )
     dp.add_handler(
