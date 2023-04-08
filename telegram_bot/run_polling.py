@@ -33,7 +33,7 @@ def run_polling(tg_token: str = TELEGRAM_BOT_TOKEN):
     bot.delete_my_commands()
     bot.set_my_commands(
         commands=[
-            BotCommand('start', 'Start bot 🚀'), BotCommand('receipts', 'Show all receipts 📊'),
+            BotCommand('start', 'Почати 🚀'), BotCommand('receipts', 'Показати всі рецептиs 📊'),
         ],
     )
     updater.start_polling()
