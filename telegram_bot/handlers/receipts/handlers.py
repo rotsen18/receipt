@@ -18,6 +18,7 @@ from telegram_bot.handlers.utils.info import extract_user_data_from_update
 UPLOAD_PHOTO = range(1)
 RECALCULATE_PORTIONS = range(1)
 STORE_SOURCE = range(1)
+VOTE_RECEIPT, ADD_COMMENT = range(2)
 
 
 def receipts(update: Update, context: CallbackContext) -> None:
@@ -250,3 +251,62 @@ def handle_sources(update, context: CallbackContext):
     for source in serializer.data:
         text = static_text.receipt_source_item_text.format(**source)
         context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode=ParseMode.HTML)
+
+
+def handle_ask_vote(update, context: CallbackContext):
+    receipt_id = int(update.callback_query.data.replace(static_text.comment_create_button_data, ''))
+    keyboard = keyboards.make_keyboard_for_receipt_vote()
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=static_text.comment_vote_text,
+        reply_markup=keyboard,
+    )
+    context.chat_data['receipt_id'] = receipt_id
+    return VOTE_RECEIPT
+
+
+def handle_vote(update, context: CallbackContext):
+    receipt_id = context.chat_data.get('receipt_id')
+    vote = int(update.callback_query.data.replace(static_text.comment_vote_button_data, ''))
+    comment = ReceiptComment.objects.create(telegram_user=context.user, receipt_id=receipt_id, rate=vote)
+    context.chat_data['comment_id'] = comment.id
+
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=static_text.comment_vote_accepted_text,
+    )
+    return ADD_COMMENT
+
+
+def handle_add_comment(update, context: CallbackContext):
+    comment_id = context.chat_data.get('comment_id')
+    comment = ReceiptComment.objects.get(id=comment_id)
+    comment.text = update.message.text
+    comment.save(update_fields=['text'])
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=static_text.comment_added_text,
+    )
+    return ConversationHandler.END
+
+
+add_comment_conversation_handler = ConversationHandler(
+    entry_points=[
+        CallbackQueryHandler(
+            handle_ask_vote,
+            pattern=rf'{static_text.comment_create_button_data}\d+'
+        )
+    ],
+    states={
+        VOTE_RECEIPT: [
+            CallbackQueryHandler(
+                handle_vote,
+                pattern=rf'{static_text.comment_vote_button_data}\d+',
+            )
+        ],
+        ADD_COMMENT: [
+            MessageHandler(Filters.text, handle_add_comment),
+        ],
+    },
+    fallbacks=[],
+)

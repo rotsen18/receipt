@@ -75,3 +75,14 @@ def make_keyboard_for_category(categories: list) -> InlineKeyboardMarkup:
         )
         buttons[0].append(category_button)
     return InlineKeyboardMarkup(buttons)
+
+
+def make_keyboard_for_receipt_vote() -> InlineKeyboardMarkup:
+    buttons = []
+    for rate in range(1, 6):
+        button = InlineKeyboardButton(
+            static_text.comment_vote_button_name.format(rate='⭐' * rate),
+            callback_data=f'{static_text.comment_vote_button_data}{rate}'
+        )
+        buttons.append([button])
+    return InlineKeyboardMarkup(buttons)
