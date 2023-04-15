@@ -6,7 +6,7 @@ from directory.models import CulinaryCategory
 
 
 class BotReceiptCommentSerializer(serializers.ModelSerializer):
-    author = serializers.CharField(source='author.get_short_name', read_only=True, default='Анонім')
+    author = serializers.SerializerMethodField(read_only=True)
     date = serializers.DateTimeField(source='created_at', read_only=True, format='%d %b %Y')
     rate = serializers.SerializerMethodField()
 
@@ -16,6 +16,13 @@ class BotReceiptCommentSerializer(serializers.ModelSerializer):
 
     def get_rate(self, obj):
         return '⭐' * obj.rate
+
+    def get_author(self, obj):
+        if obj.author and not obj.author.is_anonymous:
+            return obj.author.get_short_name()
+        if obj.telegram_user:
+            return obj.telegram_user.get_short_name()
+        return 'Анонім'
 
 
 class BotCulinaryCategorySerializer(CulinaryCategorySerializer):
