@@ -41,12 +41,12 @@ def setup_dispatcher(dp):
             pattern=rf'{receipt_static_text.comments_list_button_data}\d+'
         )
     )
-    dp.add_handler(
-        CallbackQueryHandler(
-            receipts_handlers.add_comment,
-            pattern=rf'{receipt_static_text.comment_create_button_data}\d+'
-        )
-    )
+    # dp.add_handler(
+    #     CallbackQueryHandler(
+    #         receipts_handlers.add_comment,
+    #         pattern=rf'{receipt_static_text.comment_create_button_data}\d+'
+    #     )
+    # )
     dp.add_handler(receipts_handlers.upload_photo_conversation_handler)
     dp.add_handler(
         CallbackQueryHandler(
@@ -86,6 +86,15 @@ def setup_dispatcher(dp):
             receipts_handlers.handle_sources
         )
     )
+    dp.add_handler(receipts_handlers.add_comment_conversation_handler)
+    dp.add_handler(
+        CallbackQueryHandler(
+            receipts_handlers.handle_ask_vote,
+            pattern=rf'{receipt_static_text.comment_create_button_data}\d+'
+        )
+    )
+
+    # unknown command
     dp.add_handler(
         MessageHandler(Filters.text, receipts_handlers.unknown_command)
     )
