@@ -4,7 +4,7 @@ from django.db.models import Avg
 from django.utils.translation import gettext_lazy as _
 from telegram import PhotoSize
 
-from mixins.models import AuthorABC, DateTimesABC, NameABC
+from mixins.models import AuthorABC, DateTimesABC, NameABC, TelegramUserABC
 
 
 class Receipt(NameABC, DateTimesABC, AuthorABC):
@@ -72,7 +72,7 @@ class ReceiptComponent(models.Model):
         super().save(force_insert, force_update, using, update_fields)
 
 
-class ReceiptComment(DateTimesABC, AuthorABC):
+class ReceiptComment(DateTimesABC, AuthorABC, TelegramUserABC):
     class RateChoices(models.IntegerChoices):
         VERY_BAD = (1, 'very bad')
         BAD = (2, 'bad')
