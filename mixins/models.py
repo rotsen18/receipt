@@ -35,3 +35,16 @@ class AuthorABC(models.Model):
         abstract = True
         verbose_name = _('Author')
         verbose_name_plural = _('Authors')
+
+
+class TelegramUserABC(models.Model):
+    telegram_user = models.ForeignKey(
+        'telegram_bot.TelegramUser',
+        verbose_name=_('Telegram user'),
+        on_delete=models.CASCADE,
+        related_name='telegram_user',
+        null=True
+    )
+
+    class Meta:
+        abstract = True
