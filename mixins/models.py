@@ -41,7 +41,7 @@ class TelegramUserABC(models.Model):
     telegram_user = models.ForeignKey(
         'telegram_bot.TelegramUser',
         verbose_name=_('Telegram user'),
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='telegram_user',
         null=True
     )
