@@ -24,3 +24,6 @@ class TelegramUser(models.Model):
     @property
     def is_telegram_admin(self):
         return self.type_user == self.TypeUserChoice.ADMIN
+
+    def get_short_name(self):
+        return self.first_name
