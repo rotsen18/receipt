@@ -46,6 +46,12 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
 
 class ReceiptComponent(models.Model):
     receipt = models.ForeignKey(Receipt, verbose_name=_('Receipt'), on_delete=models.CASCADE, related_name='components')
+    receipt_components_type = models.ForeignKey(
+        'directory.ReceiptComponentsType',
+        verbose_name=_('Receipt_components_type'),
+        on_delete=models.CASCADE,
+        null=True,
+    )
     ingredient = models.ForeignKey('directory.Ingredient', verbose_name=_('Ingredient'), on_delete=models.CASCADE)
     measurement_unit = models.ForeignKey(
         'directory.MeasurementUnit',
