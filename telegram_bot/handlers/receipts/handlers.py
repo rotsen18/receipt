@@ -71,7 +71,8 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
             ),
         },
     ]
-    context.bot.send_photo(user_id, receipt.photo)
+    if receipt.photo:
+        context.bot.send_photo(user_id, receipt.photo)
     for message in messages:
         context.bot.send_message(
             user_id,
