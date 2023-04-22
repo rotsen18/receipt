@@ -2,9 +2,12 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Avg
 from django.utils.translation import gettext_lazy as _
-from telegram import PhotoSize
 
 from mixins.models import AuthorABC, DateTimesABC, NameABC, TelegramUserABC
+
+
+def upload_receipt_photo(instance, filename):
+    return f'receipts/{instance.category.id}/{filename}'
 
 
 class Receipt(NameABC, DateTimesABC, AuthorABC):
@@ -27,6 +30,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     source_link = models.URLField(_('Source_link'), null=True)
     receipt_portions = models.IntegerField(_('Receipt_portions'), validators=[MinValueValidator(limit_value=1)])
     estimate_time = models.DurationField(_('Estimate_time'), null=True)
+    photo = models.ImageField(_('Photo'), upload_to=upload_receipt_photo, null=True, blank=True)
 
     class Meta:
         verbose_name = _('Receipt')
@@ -101,28 +105,6 @@ class ReceiptComment(DateTimesABC, AuthorABC, TelegramUserABC):
         max_comment_length = 15
         text = f'{self.text[:max_comment_length]}...' if len(self.text) >= max_comment_length else self.text
         return f'{self.receipt}:{self.rate} {text}'
-
-
-class ReceiptImage(DateTimesABC):
-    receipt = models.ForeignKey(Receipt, verbose_name=_('Receipt'), on_delete=models.CASCADE, related_name='photos')
-    file_id = models.CharField(max_length=200)
-    file_unique_id = models.CharField(max_length=20)
-    file_size = models.IntegerField(null=True)
-    width = models.IntegerField()
-    height = models.IntegerField()
-
-    class Meta:
-        verbose_name = _('ReceiptImage')
-        verbose_name_plural = _('ReceiptImages')
-
-    @property
-    def photosize(self):
-        return PhotoSize(self.file_id, self.file_unique_id, self.width, self.height, self.file_size)
-
-    @property
-    def image_url(self):
-        file = self.photosize.get_file()
-        return file.file_path
 
 
 class ReceiptSource(NameABC, DateTimesABC):
