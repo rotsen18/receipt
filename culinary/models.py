@@ -41,6 +41,8 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
 
     @property
     def raking(self):
+        if not self.comments.exists():
+            return ''
         return round(self.comments.aggregate(avg=Avg('rate')).get('avg'), 1)
 
 
