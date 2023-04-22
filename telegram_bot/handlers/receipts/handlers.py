@@ -1,11 +1,12 @@
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db.models import Count
 from django.urls import reverse
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 
 from culinary.api.v1.serializers.receipt import ReceiptListSerializer
-from culinary.models import Receipt, ReceiptComment, ReceiptImage, ReceiptSource
+from culinary.models import Receipt, ReceiptComment, ReceiptSource
 from culinary.services import PortionService
 from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
@@ -14,6 +15,7 @@ from telegram_bot.handlers.receipts.serializers import (
     BotCulinaryCategorySerializer, BotDetailReceiptSerializer, BotReceiptCommentSerializer, ReceiptSourceSerializer,
 )
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
+from telegram_bot.main import bot
 
 UPLOAD_PHOTO = range(1)
 RECALCULATE_PORTIONS = range(1)
@@ -69,8 +71,7 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
             ),
         },
     ]
-    for image in receipt.photos.all():
-        context.bot.send_photo(user_id, image.photosize)
+    context.bot.send_photo(user_id, receipt.photo)
     for message in messages:
         context.bot.send_message(
             user_id,
@@ -118,16 +119,13 @@ def handle_upload_photo(update, context):
 
 def handle_photo(update, context: CallbackContext):
     receipt_id = context.chat_data.get('receipt_id')
-
-    ReceiptImage.objects.get_or_create(
-        receipt_id=receipt_id,
-        file_id=update.message.photo[-1].file_id,
-        file_size=update.message.photo[-1].file_size,
-        file_unique_id=update.message.photo[-1].file_unique_id,
-        height=update.message.photo[-1].height,
-        width=update.message.photo[-1].width,
-    )
-
+    receipt = Receipt.objects.get(id=receipt_id)
+    photo = update.message.photo[-1]  # Get the largest available photo
+    file_id = photo.file_id
+    name = photo.file_unique_id
+    file = bot.get_file(file_id)
+    file_bytes = file.download_as_bytearray()
+    receipt.photo.save(name, ContentFile(file_bytes))
     context.bot.send_message(chat_id=update.effective_chat.id, text='The photo has been uploaded.')
     context.user_data.clear()
     return ConversationHandler.END
