@@ -80,3 +80,15 @@ class CulinaryCategory(NameABC):
         verbose_name = _('CulinaryCategory')
         verbose_name_plural = _('CulinaryCategories')
         ordering = ['name']
+
+
+class ReceiptComponentsType(NameABC):
+    """Component type, ex.: main, additional, etc."""
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('ReceiptType')
+        verbose_name_plural = _('ReceiptTypes')
+        ordering = ['name']

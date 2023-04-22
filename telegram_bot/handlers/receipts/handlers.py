@@ -1,19 +1,21 @@
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db.models import Count
 from django.urls import reverse
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 
-from culinary.api.v1.serializers.receipt import ReceiptDetailSerializer, ReceiptListSerializer
-from culinary.models import Receipt, ReceiptComment, ReceiptImage, ReceiptSource
+from culinary.api.v1.serializers.receipt import ReceiptListSerializer
+from culinary.models import Receipt, ReceiptComment, ReceiptSource
 from culinary.services import PortionService
 from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
 from telegram_bot.handlers.receipts import keyboards, static_text
 from telegram_bot.handlers.receipts.serializers import (
-    BotCulinaryCategorySerializer, BotReceiptCommentSerializer, ReceiptSourceSerializer,
+    BotCulinaryCategorySerializer, BotDetailReceiptSerializer, BotReceiptCommentSerializer, ReceiptSourceSerializer,
 )
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
+from telegram_bot.main import bot
 
 UPLOAD_PHOTO = range(1)
 RECALCULATE_PORTIONS = range(1)
@@ -41,16 +43,25 @@ def receipts(update: Update, context: CallbackContext) -> None:
         )
 
 
+def get_components(data):
+    parts = []
+    for header, components in data.get('components').items():
+        components_list_text = '\n'.join([f'{num}. {value}' for num, value in enumerate(components, 1)])
+        part = f'{header.capitalize()}:\n{components_list_text}'
+        parts.append(part)
+    return '\n\n'.join(parts)
+
+
 def detail_receipt(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)['user_id']
     receipt_id = int(update.callback_query.data.replace(static_text.receipt_view_button_data, ''))
     receipt = Receipt.objects.get(id=receipt_id)
-    serializer = ReceiptDetailSerializer(receipt)
+    serializer = BotDetailReceiptSerializer(receipt)
     data = serializer.data
     data['devices'] = ', '.join(data.get('devices'))
     messages = [
         {'text': static_text.receipt_detail_title.format(**data)},
-        {'text': '\n'.join([f'{num}. {value}' for num, value in enumerate(serializer.data.get('components'), 1)])},
+        {'text': get_components(serializer.data)},
         {
             'text': serializer.data.get('procedure'),
             'reply_markup': keyboards.make_keyboard_for_detail_receipt(
@@ -60,8 +71,7 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
             ),
         },
     ]
-    for image in receipt.photos.all():
-        context.bot.send_photo(user_id, image.photosize)
+    context.bot.send_photo(user_id, receipt.photo)
     for message in messages:
         context.bot.send_message(
             user_id,
@@ -109,16 +119,13 @@ def handle_upload_photo(update, context):
 
 def handle_photo(update, context: CallbackContext):
     receipt_id = context.chat_data.get('receipt_id')
-
-    ReceiptImage.objects.get_or_create(
-        receipt_id=receipt_id,
-        file_id=update.message.photo[-1].file_id,
-        file_size=update.message.photo[-1].file_size,
-        file_unique_id=update.message.photo[-1].file_unique_id,
-        height=update.message.photo[-1].height,
-        width=update.message.photo[-1].width,
-    )
-
+    receipt = Receipt.objects.get(id=receipt_id)
+    photo = update.message.photo[-1]  # Get the largest available photo
+    file_id = photo.file_id
+    name = photo.file_unique_id
+    file = bot.get_file(file_id)
+    file_bytes = file.download_as_bytearray()
+    receipt.photo.save(name, ContentFile(file_bytes))
     context.bot.send_message(chat_id=update.effective_chat.id, text='The photo has been uploaded.')
     context.user_data.clear()
     return ConversationHandler.END

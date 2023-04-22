@@ -1,5 +1,8 @@
+from collections import defaultdict
+
 from rest_framework import serializers
 
+from culinary.api.v1.serializers.receipt import ReceiptDetailSerializer
 from culinary.models import ReceiptComment, ReceiptSource
 from directory.api.v1.serializers.food import CulinaryCategorySerializer
 from directory.models import CulinaryCategory
@@ -39,3 +42,16 @@ class ReceiptSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReceiptSource
         fields = ('source', 'receipt', 'date')
+
+
+class BotDetailReceiptSerializer(ReceiptDetailSerializer):
+    components = serializers.SerializerMethodField()
+
+    def get_components(self, obj):
+        result = defaultdict(list)
+        for component in obj.components.all():
+            key = 'Складники'
+            if component.receipt_components_type:
+                key = component.receipt_components_type.name
+            result[key].append(str(component))
+        return result
