@@ -4,14 +4,14 @@ from django.urls import reverse
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 
-from culinary.api.v1.serializers.receipt import ReceiptDetailSerializer, ReceiptListSerializer
+from culinary.api.v1.serializers.receipt import ReceiptListSerializer
 from culinary.models import Receipt, ReceiptComment, ReceiptImage, ReceiptSource
 from culinary.services import PortionService
 from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
 from telegram_bot.handlers.receipts import keyboards, static_text
 from telegram_bot.handlers.receipts.serializers import (
-    BotCulinaryCategorySerializer, BotReceiptCommentSerializer, ReceiptSourceSerializer,
+    BotCulinaryCategorySerializer, BotDetailReceiptSerializer, BotReceiptCommentSerializer, ReceiptSourceSerializer,
 )
 from telegram_bot.handlers.utils.info import extract_user_data_from_update
 
@@ -41,16 +41,25 @@ def receipts(update: Update, context: CallbackContext) -> None:
         )
 
 
+def get_components(data):
+    parts = []
+    for header, components in data.get('components').items():
+        components_list_text = '\n'.join([f'{num}. {value}' for num, value in enumerate(components, 1)])
+        part = f'{header.capitalize()}:\n{components_list_text}'
+        parts.append(part)
+    return '\n\n'.join(parts)
+
+
 def detail_receipt(update: Update, context: CallbackContext) -> None:
     user_id = extract_user_data_from_update(update)['user_id']
     receipt_id = int(update.callback_query.data.replace(static_text.receipt_view_button_data, ''))
     receipt = Receipt.objects.get(id=receipt_id)
-    serializer = ReceiptDetailSerializer(receipt)
+    serializer = BotDetailReceiptSerializer(receipt)
     data = serializer.data
     data['devices'] = ', '.join(data.get('devices'))
     messages = [
         {'text': static_text.receipt_detail_title.format(**data)},
-        {'text': '\n'.join([f'{num}. {value}' for num, value in enumerate(serializer.data.get('components'), 1)])},
+        {'text': get_components(serializer.data)},
         {
             'text': serializer.data.get('procedure'),
             'reply_markup': keyboards.make_keyboard_for_detail_receipt(
