@@ -48,10 +48,14 @@ def make_keyboard_for_detail_receipt(
         static_text.receipt_photo_create_button_name,
         callback_data=f'{static_text.receipt_photo_create_button_data}{receipt_id}'
     )
+    price_button = InlineKeyboardButton(
+        static_text.receipt_price_view_button_name,
+        callback_data=f'{static_text.receipt_price_view_button_data}{receipt_id}'
+    )
     admnin_buttons = [edit_button, upload_photo]
 
     buttons = [
-        [add_comment_button, recalculate_button],
+        [add_comment_button, recalculate_button, price_button],
     ]
     if comments_amount:
         buttons[0].append(comments_button)
