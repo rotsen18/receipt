@@ -55,7 +55,8 @@ class ReceiptPriceService:
         url = f'https://stores-api.zakaz.ua/stores/{settings.HOME_STORE_ID}/products/{product_ean}/'
         return cls._request(url)
 
-    def get_component_price(self, component: ReceiptComponent) -> float:
+    @staticmethod
+    def get_component_price(component: ReceiptComponent) -> float:
         ingredient_unit = component.measurement_unit or component.ingredient.default_measurement_unit
         product_info = component.ingredient.product_data
         if not product_info:
