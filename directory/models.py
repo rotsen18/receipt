@@ -25,6 +25,7 @@ class Ingredient(NameABC):
         null=True
     )
     product_url = models.URLField(_('Product_url'), null=True)
+    product_data = models.JSONField(_('Product_data'), blank=True, null=True, default=dict)
 
     def __str__(self):
         return self.name
