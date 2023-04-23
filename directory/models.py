@@ -24,6 +24,7 @@ class Ingredient(NameABC):
         on_delete=models.SET_NULL,
         null=True
     )
+    product_url = models.URLField(_('Product_url'), null=True)
 
     def __str__(self):
         return self.name

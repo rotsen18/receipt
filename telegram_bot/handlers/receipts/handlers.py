@@ -2,12 +2,12 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models import Count
 from django.urls import reverse
-from telegram import ParseMode, Update
+from telegram import ChatAction, ParseMode, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 
 from culinary.api.v1.serializers.receipt import ReceiptListSerializer
 from culinary.models import Receipt, ReceiptComment, ReceiptSource
-from culinary.services import PortionService
+from culinary.services import PortionService, ReceiptPriceService
 from directory.models import CulinaryCategory
 from telegram_bot.handlers.handlers import not_implemented
 from telegram_bot.handlers.receipts import keyboards, static_text
@@ -72,7 +72,10 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
         },
     ]
     if receipt.photo:
-        context.bot.send_photo(user_id, receipt.photo)
+        try:
+            context.bot.send_photo(user_id, receipt.photo)
+        except FileNotFoundError:
+            pass  # photo was stored on production server
     for message in messages:
         context.bot.send_message(
             user_id,
@@ -318,3 +321,26 @@ add_comment_conversation_handler = ConversationHandler(
     },
     fallbacks=[],
 )
+
+
+def handle_receipt_price(update, context: CallbackContext):
+    receipt_id = int(update.callback_query.data.replace(static_text.receipt_price_view_button_data, ''))
+    receipt = Receipt.objects.get(id=receipt_id)
+    context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+    price_calculator = ReceiptPriceService(receipt)
+    ingredients_price_text = '\n'.join(price_calculator.get_components_price_text())
+    receipt_cost = round(price_calculator.products_cost + price_calculator.consumption_cost, 2)
+    receipt_cost_per_portion = round(receipt_cost / receipt.receipt_portions, 2)
+    one_pcs_price = round(price_calculator.receipt_price / receipt.receipt_portions, 2)
+    text = static_text.receipt_price_view_text.format(
+        products_cost=price_calculator.products_cost,
+        ingredients_price=ingredients_price_text,
+        consumption_cost=price_calculator.consumption_cost,
+        receipt_cost=receipt_cost,
+        profit_percent=settings.PROFIT_PERCENT * 100,
+        profit_cost=price_calculator.profit_cost,
+        total_price=price_calculator.receipt_price,
+        receipt_cost_per_portion=receipt_cost_per_portion,
+        one_pcs_price=one_pcs_price,
+    )
+    context.bot.send_message(chat_id=update.effective_chat.id, text=text)
