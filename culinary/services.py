@@ -1,6 +1,11 @@
+from collections import defaultdict
+
+import requests
+from django.conf import settings
 from django.db.models import F, Func
 
 from culinary.models import Receipt, ReceiptComponent
+from directory.models import Ingredient
 
 
 class PortionService:
@@ -18,3 +23,95 @@ class PortionService:
             )
         ).values('ingredient_name', 'measurement_unit_name', 'new_amount')
         return list(qs)
+
+
+class ReceiptPriceService:
+    _request_cache = {}
+
+    def __init__(self, receipt: Receipt):
+        self.receipt = receipt
+        self.receipt_price = None
+        self.profit_cost = None
+        self.consumption_cost = None
+        self.products_cost = None
+        self._components_price = defaultdict(float)
+        self.calculate()
+
+    @classmethod
+    def _request(cls, url: str) -> dict:
+        if url in cls._request_cache:
+            return cls._request_cache[url]
+        response = requests.get(url)
+        if response.status_code == 200:
+            cls._request_cache[url] = response.json()
+        return response.json()
+
+    @classmethod
+    def get_product_info(cls, product: Ingredient) -> dict:
+        if not product.product_url:
+            return {}
+        product_url = product.product_url.strip('/')
+        product_ean = product_url.split('--')[-1]
+        url = f'https://stores-api.zakaz.ua/stores/{settings.HOME_STORE_ID}/products/{product_ean}/'
+        return cls._request(url)
+
+    def get_component_price(self, component: ReceiptComponent) -> float:
+        ingredient_unit = component.measurement_unit or component.ingredient.default_measurement_unit
+        product_info = self.get_product_info(component.ingredient)
+        if not product_info:
+            return 0
+        product_price = product_info['price'] * 0.01
+        product_unit_name = product_info['unit']
+        if ingredient_unit.name == 'грам':
+            if product_unit_name == 'pcs':
+                return product_price / product_info['weight']
+            elif product_unit_name == 'kg':
+                return product_price / 1000
+        elif ingredient_unit.name == 'кілограм':
+            if product_unit_name == 'pcs':
+                return product_price / product_info['weight'] * 1000
+            elif product_unit_name == 'kg':
+                return product_price
+        elif ingredient_unit.name == 'столова ложка':
+            if product_unit_name == 'pcs':
+                price = product_price / product_info['weight']
+                return price * 12
+            elif product_unit_name == 'kg':
+                price = product_price / 1000
+                return price * 12
+        elif ingredient_unit.name == 'чайна ложка':
+            if product_unit_name == 'pcs':
+                price = product_price / product_info['weight']
+                return price * 5
+            elif product_unit_name == 'kg':
+                price = product_price / 1000
+                return price * 5
+        elif ingredient_unit.name == 'щіпка':
+            if product_unit_name == 'pcs':
+                return product_price / product_info['weight']
+            elif product_unit_name == 'kg':
+                return product_price / 1000
+        elif ingredient_unit.name == 'штук':
+            if product_unit_name == 'pcs':
+                return product_price / product_info['pack_amount']
+
+    def calculate(self):
+        products_cost = 0
+        for component in self.receipt.components.all():
+            product_amount = component.amount * self.get_component_price(component=component)
+            self._components_price[component.ingredient.name] += product_amount
+            products_cost += product_amount
+        self.products_cost = round(products_cost, 2)
+
+        electricity_cost = self.receipt.estimate_time.total_seconds() / 3600 * settings.ELECTRICITY_PRICE
+        water_sewer_cost = settings.WATER_SEWER_PRICE * 0.015
+        self.consumption_cost = round(electricity_cost + water_sewer_cost, 2)
+        receipt_cost = self.products_cost + self.consumption_cost
+        self.profit_cost = round(settings.PROFIT_PERCENT * receipt_cost, 2)
+        self.receipt_price = round(receipt_cost + self.profit_cost, 2)
+
+    def get_components_price_text(self) -> list:
+        return [
+            f'{index}: {ingredient[0]} - {ingredient[1]:.2f} грн'
+            for index, ingredient in enumerate(self._components_price.items(), 1)
+        ]

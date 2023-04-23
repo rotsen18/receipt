@@ -18,6 +18,13 @@ receipt_source_list_button_name = 'Нотатки'
 receipt_source_question_text = 'Встав текст, посилання чи іншу замітку щоб пізніше створити рецепт:'
 receipt_source_item_text = '<b>{date}</b>\n{source}'
 receipt_source_saved_text = 'Нотатку збережено'
+receipt_price_view_button_name = '📊Ціна'
+receipt_price_view_button_data = 'receipt_price_receipt_id='
+receipt_price_view_text = 'Вартість продуктів: {products_cost} грн\n{ingredients_price} грн' \
+                          '\n+ комуналка {consumption_cost} грн: {receipt_cost} грн' \
+                          '\n+ прибуток {profit_percent}% {profit_cost} грн: {total_price} грн' \
+                          '\n\nСобівартість на одну порцію: {receipt_cost_per_portion} грн' \
+                          '\nЦіна за одну порцію: {one_pcs_price} грн'
 
 category_from_receipt_button_name = 'Інші з {category_name}'
 categories_list_view_name = 'Категорії'
