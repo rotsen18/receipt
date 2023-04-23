@@ -72,7 +72,10 @@ def detail_receipt(update: Update, context: CallbackContext) -> None:
         },
     ]
     if receipt.photo:
-        context.bot.send_photo(user_id, receipt.photo)
+        try:
+            context.bot.send_photo(user_id, receipt.photo)
+        except FileNotFoundError:
+            pass  # photo was stored on production server
     for message in messages:
         context.bot.send_message(
             user_id,
