@@ -206,3 +206,9 @@ LANGUAGES = [
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
+
+HOME_STORE_ID = env.int('HOME_STORE_ID', 1)
+ELECTRICITY_PRICE = 2  # price for 1 kWh
+WATER_SEWER_PRICE = 40  # price for 1 m3
+PROFIT_PERCENT = 0.2  # 20% profit
+PERSON_HOURLY_RATE = 100  # hourly rate for person 100 UAH / 1 hour
