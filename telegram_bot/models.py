@@ -27,3 +27,10 @@ class TelegramUser(models.Model):
 
     def get_short_name(self):
         return self.first_name
+
+    def __str__(self):
+        if self.username:
+            return self.username
+        elif self.full_name:
+            return self.full_name
+        return super().__str__()
