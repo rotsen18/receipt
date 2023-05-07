@@ -148,7 +148,11 @@ upload_photo_conversation_handler = ConversationHandler(
 
 def handle_insert_portions(update, context: CallbackContext):
     receipt_id = int(update.callback_query.data.replace(static_text.receipt_recalculate_portions_button_data, ''))
-    context.bot.send_message(chat_id=update.effective_chat.id, text=static_text.recalculate_portion_question)
+    receipt = Receipt.objects.get(id=receipt_id)
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=static_text.recalculate_portion_question.format(previous_portions=receipt.receipt_portions)
+    )
     context.chat_data['receipt_id'] = receipt_id
     return RECALCULATE_PORTIONS
 
@@ -157,13 +161,8 @@ def handle_recalculating(update, context: CallbackContext):
     receipt_id = context.chat_data.get('receipt_id')
     receipt = Receipt.objects.get(id=receipt_id)
     portions = int(update.message.text)
-
     new_data = PortionService.new_portions(receipt=receipt, portions=portions)
-    title = static_text.recalculate_result_title.format(
-        previous_portions=receipt.receipt_portions,
-        new_portions=portions,
-    )
-
+    title = static_text.recalculate_result_title.format(new_portions=portions)
     answer = [title]
     for num, component in enumerate(new_data, 1):
         row = f"{num}. {component.get('ingredient_name')} " \
