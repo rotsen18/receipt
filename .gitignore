@@ -371,4 +371,7 @@ poetry.toml
 # ruff
 .ruff_cache/
 
+# google
+receipt-386613-933b2867634f.json
+
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,python,django
