@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'corsheaders',
     'rest_framework.authtoken',
+    'gdstorage',
 
     'accounts',
     'core',
@@ -212,3 +213,6 @@ ELECTRICITY_PRICE = 2  # price for 1 kWh
 WATER_SEWER_PRICE = 40  # price for 1 m3
 PROFIT_PERCENT = 0.2  # 20% profit
 PERSON_HOURLY_RATE = 100  # hourly rate for person 100 UAH / 1 hour
+
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(BASE_DIR, env.str('GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE'))
+GOOGLE_DRIVE_STORAGE_MEDIA_ROOT = 'receipt/media'
