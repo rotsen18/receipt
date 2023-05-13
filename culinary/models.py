@@ -2,8 +2,11 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Avg
 from django.utils.translation import gettext_lazy as _
+from gdstorage.storage import GoogleDriveStorage
 
 from mixins.models import AuthorABC, DateTimesABC, NameABC, TelegramUserABC
+
+gd_storage = GoogleDriveStorage()
 
 
 def upload_receipt_photo(instance, filename):
@@ -30,7 +33,7 @@ class Receipt(NameABC, DateTimesABC, AuthorABC):
     source_link = models.URLField(_('Source_link'), null=True)
     receipt_portions = models.IntegerField(_('Receipt_portions'), validators=[MinValueValidator(limit_value=1)])
     estimate_time = models.DurationField(_('Estimate_time'), null=True)
-    photo = models.ImageField(_('Photo'), upload_to=upload_receipt_photo, null=True, blank=True)
+    photo = models.FileField(_('Photo'), upload_to=upload_receipt_photo, null=True, blank=True, storage=gd_storage)
 
     class Meta:
         verbose_name = _('Receipt')
