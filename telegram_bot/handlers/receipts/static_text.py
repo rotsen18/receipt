@@ -26,7 +26,7 @@ receipt_price_view_text = 'Вартість продуктів: {products_cost} 
                           '\n\nСобівартість на одну порцію: {receipt_cost_per_portion} грн' \
                           '\nЦіна за одну порцію: {one_pcs_price} грн'
 
-category_from_receipt_button_name = 'Інші з {category_name}'
+category_from_receipt_button_name = 'Все з {category_name}'
 categories_list_view_name = 'Категорії'
 category__list_view_result_text = 'Список категорій'
 category_view_button_name = '{name}: {receipt_count}шт'
