@@ -13,8 +13,6 @@ class ReceiptForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['source_link'].required = False
-        if not self.instance.author:
-            self.fields['author'].initial = self.request.user
 
 
 class ComponentsInline(admin.TabularInline):
