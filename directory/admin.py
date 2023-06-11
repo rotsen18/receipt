@@ -10,7 +10,7 @@ class MeasurementUnitAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'name', 'description', 'default_measurement_unit', 'product_url')
 
 
 @admin.register(CulinaryCategory)
