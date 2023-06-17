@@ -15,7 +15,10 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(CulinaryCategory)
 class CulinaryCategoryAdmin(admin.ModelAdmin):
-    pass
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['parent'].required = False
+        return form
 
 
 @admin.register(Device)
