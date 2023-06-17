@@ -27,11 +27,6 @@ class ReceiptAdmin(admin.ModelAdmin):
     form = ReceiptForm
 
 
-@admin.register(ReceiptComponent)
-class ReceiptComponent(admin.ModelAdmin):
-    pass
-
-
 @admin.register(ReceiptComment)
 class ReceiptComment(admin.ModelAdmin):
     pass

@@ -13,9 +13,9 @@ class Command(BaseCommand):
             try:
                 data = ReceiptPriceService.get_product_info(ingredient)
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f'{ingredient}: Error while getting data from zakaz api: {e}'))
+                self.stdout.write(self.style.ERROR(f'{ingredient}: status Error: {e}'))
                 continue
-            self.stdout.write(self.style.SUCCESS(f'{ingredient}: Data received successfully'))
+            self.stdout.write(self.style.SUCCESS(f'{ingredient}: status OK'))
             ingredient.product_data = data
             bulk_ingredients.append(ingredient)
         Ingredient.objects.bulk_update(bulk_ingredients, ['product_data'])
