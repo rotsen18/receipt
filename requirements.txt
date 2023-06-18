@@ -1,6 +1,6 @@
-asgiref==3.6.0
-django==4.2.1
-django-cors-headers==4.0.0
+asgiref==3.7.2
+django==4.2.2
+django-cors-headers==4.1.0
 django-environ==0.10.0
 django-filter==23.2
 django-googledrive-storage==1.6.0
@@ -13,10 +13,11 @@ gunicorn==20.1.0
 humanize==4.6.0
 isort==5.11.5
 pillow==9.5.0
-pre-commit==3.2.1
+pre-commit==3.3.3
 psycopg2==2.9.6
 python-telegram-bot==13.15
 pytz==2023.3
-requests==2.30
+requests==2.31.0
 sqlparse==0.4.4
-whitenoise==6.4.0
+whitenoise==6.5.0
+httpx==0.24.1
