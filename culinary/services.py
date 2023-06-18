@@ -1,6 +1,7 @@
+import asyncio
 from collections import defaultdict
 
-import requests
+import httpx
 from django.conf import settings
 from django.db.models import F, Func
 
@@ -26,8 +27,6 @@ class PortionService:
 
 
 class ReceiptPriceService:
-    _request_cache = {}
-
     def __init__(self, receipt: Receipt):
         self.receipt = receipt
         self.receipt_price = None
@@ -36,24 +35,6 @@ class ReceiptPriceService:
         self.products_cost = None
         self._components_price = defaultdict(float)
         self.calculate()
-
-    @classmethod
-    def _request(cls, url: str) -> dict:
-        if url in cls._request_cache:
-            return cls._request_cache[url]
-        response = requests.get(url)
-        if response.status_code == 200:
-            cls._request_cache[url] = response.json()
-        return response.json()
-
-    @classmethod
-    def get_product_info(cls, product: Ingredient) -> dict:
-        if not product.product_url:
-            return {}
-        product_url = product.product_url.strip('/')
-        product_ean = product_url.split('--')[-1]
-        url = f'https://stores-api.zakaz.ua/stores/{settings.HOME_STORE_ID}/products/{product_ean}/'
-        return cls._request(url)
 
     @staticmethod
     def get_component_price(component: ReceiptComponent) -> float:
@@ -116,3 +97,39 @@ class ReceiptPriceService:
             f'{index}: {ingredient[0]} - {ingredient[1]:.2f} грн'
             for index, ingredient in enumerate(self._components_price.items(), 1)
         ]
+
+
+class UpgradeProduct:
+    @staticmethod
+    async def get_product_info(client, ingredient: Ingredient) -> Ingredient | None:
+        if not ingredient.product_url:
+            print(f'{ingredient}: no product_url')
+            return
+        product_url = ingredient.product_url.strip('/')
+        product_ean = product_url.split('--')[-1]
+        url = f'https://stores-api.zakaz.ua/stores/{settings.HOME_STORE_ID}/products/{product_ean}/'
+        response = await client.get(url)
+        new_data = response.json()
+        old_price = round(ingredient.product_data.get('price') / 100, 2)
+        new_price = round(new_data.get('price') / 100, 2)
+        print(f'{ingredient}: {"{:.2f}".format(old_price)} UAH -> {"{:.2f}".format(new_price)} UAH')
+        ingredient.product_data = new_data
+        return ingredient
+
+    @classmethod
+    async def get_all_components_info(cls) -> list[dict]:
+        async with httpx.AsyncClient() as client:
+            tasks = []
+            async for ingredient in Ingredient.objects.all():
+                tasks.append(asyncio.ensure_future(cls.get_product_info(client, ingredient)))
+            result = await asyncio.gather(*tasks)
+            ingredients_to_update = [ingredient for ingredient in result if ingredient]
+            print('All data received')
+            return ingredients_to_update
+
+    @classmethod
+    def update_all_products_data(cls):
+        updated_data = asyncio.run(cls.get_all_components_info())
+        Ingredient.objects.bulk_update(updated_data, ['product_data'])
+        print('All data updated successfully')
+        return True
