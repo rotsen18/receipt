@@ -1,0 +1,8 @@
+[Service]
+Type=simple
+ExecStart=/opt/apps/receipt/venv/bin/python /opt/apps/receipt/manage.py start_bot
+KillSignal=SIGQUIT
+StandardError=syslog
+WorkingDirectory=/opt/apps/receipt/
+Restart=always
+RestartSec=10s
