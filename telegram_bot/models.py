@@ -6,6 +6,7 @@ class TelegramUser(models.Model):
     class TypeUserChoice(models.TextChoices):
         ADMIN = ('Admin', 'Admin')
         CLIENT = ('Client', 'Client')
+        MODERATOR = ('Moderator', 'Moderator')
 
     type_user = models.CharField(max_length=15, choices=TypeUserChoice.choices, default=TypeUserChoice.CLIENT)
     user = models.OneToOneField(
@@ -24,6 +25,10 @@ class TelegramUser(models.Model):
     @property
     def is_telegram_admin(self):
         return self.type_user == self.TypeUserChoice.ADMIN
+
+    @property
+    def is_telegram_moderator(self):
+        return self.type_user == self.TypeUserChoice.MODERATOR
 
     def get_short_name(self):
         return self.first_name
