@@ -91,7 +91,7 @@ def edit_receipt(update: Update, context: CallbackContext):
 
 def add_receipt(update: Update, context: CallbackContext):
     create_url = reverse('admin:culinary_receipt_add')
-    base_url = settings.RENDER_EXTERNAL_HOSTNAME
+    base_url = settings.RENDER_EXTERNAL_HOSTNAME or settings.EXTERNAL_HOSTNAME
     update.message.reply_text(text=f'{base_url}{create_url}')
 
 
@@ -160,15 +160,17 @@ def handle_insert_portions(update, context: CallbackContext):
 def handle_recalculating(update, context: CallbackContext):
     receipt_id = context.chat_data.get('receipt_id')
     receipt = Receipt.objects.get(id=receipt_id)
-    portions = int(update.message.text)
-    new_data = PortionService.new_portions(receipt=receipt, portions=portions)
-    title = static_text.recalculate_result_title.format(new_portions=portions)
-    answer = [title]
-    for num, component in enumerate(new_data, 1):
-        row = f"{num}. {component.get('ingredient_name')} " \
-              f"- {component.get('new_amount')} {component.get('measurement_unit_name')}"
-        answer.append(row)
-
+    portions_amount = int(update.message.text)
+    new_data = PortionService.new_portions(receipt=receipt, portions=portions_amount)
+    title = static_text.recalculate_result_title.format(new_portions=portions_amount)
+    answer = [title, '\n']
+    for receipt_type, components in new_data.items():
+        answer.append(receipt_type)
+        for num, component in enumerate(components, 1):
+            row = f"{num}. {component.get('ingredient_name')} " \
+                  f"- {component.get('new_amount')} {component.get('measurement_unit_name')}"
+            answer.append(row)
+        answer.append('\n')
     text = '\n'.join(answer)
     context.bot.send_message(chat_id=update.effective_chat.id, text=text)
     return ConversationHandler.END
