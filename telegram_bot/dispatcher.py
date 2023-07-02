@@ -15,7 +15,14 @@ from telegram_bot.models import TelegramUser
 def setup_dispatcher(dp):
     dp.add_handler(CommandHandler('start', onboarding_handlers.command_start))
     dp.add_handler(CommandHandler('receipts', receipts_handlers.receipts))
+    dp.add_handler(CommandHandler('catalogue', onboarding_handlers.command_catalogue))
 
+    dp.add_handler(
+        MessageHandler(
+            Filters.text(onboarding_static_text.catalogue_button_name),
+            onboarding_handlers.command_catalogue
+        )
+    )
     dp.add_handler(MessageHandler(Filters.text(receipt_static_text.list_receipt_text), receipts_handlers.receipts))
     dp.add_handler(
         MessageHandler(
