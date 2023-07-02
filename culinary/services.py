@@ -14,16 +14,37 @@ class PortionService:
     def new_portions(receipt: Receipt | int, portions: int):
         if isinstance(receipt, int):
             receipt = Receipt.objects.get(id=receipt)
-        qs = ReceiptComponent.objects.filter(receipt=receipt).select_related('ingredient', 'measurement_unit').annotate(
+        qs = ReceiptComponent.objects.filter(
+            receipt=receipt
+        ).select_related(
+            'ingredient', 'measurement_unit'
+        ).annotate(
             ingredient_name=F('ingredient__name'),
             measurement_unit_name=F('measurement_unit__name'),
             new_amount=Func(
                 (F('amount') * portions) / F('receipt__receipt_portions'),
                 function='ROUND',
                 template='%(function)s(%(expressions)s::numeric, 1)'
+            ),
+            receipt_type=F('receipt_components_type__name'),
+        ).values(
+            'ingredient_name', 'measurement_unit_name', 'new_amount', 'receipt_type',
+        )
+        result = defaultdict(list)
+        for item in qs:
+            receipt_type = item['receipt_type']
+            ingredient_name = item['ingredient_name']
+            measurement_unit_name = item['measurement_unit_name']
+            new_amount = item['new_amount']
+
+            result[receipt_type].append(
+                {
+                    'ingredient_name': ingredient_name,
+                    'measurement_unit_name': measurement_unit_name,
+                    'new_amount': new_amount
+                }
             )
-        ).values('ingredient_name', 'measurement_unit_name', 'new_amount')
-        return list(qs)
+        return result
 
 
 class ReceiptPriceService:

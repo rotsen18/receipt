@@ -1,5 +1,5 @@
 [Unit]
-Description=receipt beckend service
+Description=receipt backend service
 
 [Service]
 Type=forking
