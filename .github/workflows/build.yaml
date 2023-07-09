@@ -1,0 +1,25 @@
+name: Restart Services
+on:
+  push:
+    branches:
+      - stg
+
+jobs:
+  pre-commit:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+
+  restart-services:
+    runs-on: self-hosted
+
+    steps:
+      - name: Restart receipt-bot.service
+        run: sudo systemctl restart receipt_bot.service
+
+      - name: Restart receipt-back.service
+        run: sudo systemctl restart receipt_back.service
