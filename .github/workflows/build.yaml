@@ -18,6 +18,15 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Update repository
+        run: |
+          cd /opt/apps/receipt/
+          git fetch
+          git reset --hard origin/stg
+
       - name: Restart receipt-bot.service
         run: sudo systemctl restart receipt-bot.service
 
