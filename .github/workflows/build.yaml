@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Restart receipt-bot.service
-        run: sudo systemctl restart receipt_bot.service
+        run: sudo systemctl restart receipt-bot.service
 
       - name: Restart receipt-back.service
-        run: sudo systemctl restart receipt_back.service
+        run: sudo systemctl restart receipt-back.service
