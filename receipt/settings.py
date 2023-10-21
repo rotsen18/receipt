@@ -29,7 +29,8 @@ SECRET_KEY = env.str('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', False)
 
-ALLOWED_HOSTS = ['91.245.74.187', '127.0.0.1', 'localhost', 'my-projects.pp.ua']
+ALLOWED_HOSTS = ['91.245.74.187', '127.0.0.1', 'localhost', 'my-projects.pp.ua', '0.0.0.0', '91.225.200.220']
+ALLOWED_CIDR_NETS = ['149.154.160.0/20', '91.108.4.0/22']
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'allow_cidr.middleware.AllowCIDRMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

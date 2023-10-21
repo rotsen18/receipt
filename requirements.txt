@@ -1,5 +1,5 @@
 asgiref==3.7.2
-django==4.2.2
+django==4.2.6
 django-cors-headers==4.1.0
 django-environ==0.10.0
 django-filter==23.2
@@ -21,3 +21,4 @@ requests==2.31.0
 sqlparse==0.4.4
 whitenoise==6.5.0
 httpx==0.24.1
+django-allow-cidr
